@@ -1,0 +1,2 @@
+# Kurslar
+Shaxsiy kurslar uchun
