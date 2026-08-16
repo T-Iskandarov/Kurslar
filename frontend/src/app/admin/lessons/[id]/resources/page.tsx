@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, Save, X, FileText, Download } from "lucide-react";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
 
 export default function AdminLessonResourcesPage() {
   const params = useParams();
@@ -219,7 +219,7 @@ export default function AdminLessonResourcesPage() {
         {resources.map((resource) => {
           const fileUrl = resource.file.startsWith('http') 
             ? resource.file 
-            : `http://127.0.0.1:8000${resource.file}`;
+            : `${MEDIA_BASE_URL}${resource.file}`;
             
           return (
             <div key={resource.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex items-center justify-between p-4 hover:shadow-md transition-shadow">

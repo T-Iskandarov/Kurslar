@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -89,7 +89,7 @@ export default function LessonDetailPage() {
                 {lesson.resources.map((resource: any) => {
                   const fileUrl = resource.file.startsWith('http') 
                     ? resource.file 
-                    : `http://127.0.0.1:8000${resource.file}`;
+                    : `${MEDIA_BASE_URL}${resource.file}`;
                   
                   return (
                     <a

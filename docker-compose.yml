@@ -1,0 +1,63 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: kurslarim_db
+    restart: always
+    volumes:
+      - kurslarim_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME:-kurslarim_db}
+      POSTGRES_USER: ${DB_USER:-kurslarim_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - kurslarim_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-kurslarim_user} -d ${DB_NAME:-kurslarim_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: kurslarim_web
+    restart: always
+    volumes:
+      - kurslarim_media:/app/media
+      - kurslarim_static:/app/staticfiles
+    env_file:
+      - .env.production
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kurslarim_network
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn mening_loyiham.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
+
+  nginx:
+    image: nginx:alpine
+    container_name: kurslarim_nginx
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/kurslarim.conf:/etc/nginx/conf.d/default.conf
+      - kurslarim_media:/app/media:ro
+      - kurslarim_static:/app/staticfiles:ro
+    depends_on:
+      - web
+    networks:
+      - kurslarim_network
+
+volumes:
+  kurslarim_postgres_data:
+  kurslarim_media:
+  kurslarim_static:
+
+networks:
+  kurslarim_network:
+    driver: bridge

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
 import { ArrowLeft, PlayCircle, Lock, CheckCircle2, Clock, Users, ListChecks, X, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -59,7 +59,7 @@ export default function CourseDetailPage() {
   if (!course) return null;
 
   const imageUrl = course.thumbnail 
-    ? (course.thumbnail.startsWith('http') ? course.thumbnail : `http://127.0.0.1:8000${course.thumbnail}`)
+    ? (course.thumbnail.startsWith('http') ? course.thumbnail : `${MEDIA_BASE_URL}${course.thumbnail}`)
     : "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80";
 
   return (
