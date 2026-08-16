@@ -8,7 +8,10 @@ interface User {
   id: number;
   phone: string;
   full_name: string;
-  is_staff: boolean;
+  is_staff?: boolean;
+  gender?: string;
+  birth_date?: string;
+  date_joined?: string;
 }
 
 interface AuthContextType {

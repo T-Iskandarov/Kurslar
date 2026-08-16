@@ -7,6 +7,7 @@ interface CourseProps {
   description: string;
   thumbnail: string | null;
   lessons_count: number;
+  students_count?: number;
   created_at: string;
 }
 
