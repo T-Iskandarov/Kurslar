@@ -15,9 +15,50 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tursunpo'lat Iskandarov",
-  description: "Masofaviy ta'lim platformasi",
-  manifest: "/manifest.json", // Next.js will automatically generate this from manifest.ts
+  metadataBase: new URL('https://kurslarim.uz'),
+  title: {
+    default: "Tursunpo'lat Iskandarov | Masofaviy Ta'lim Platformasi",
+    template: "%s | Tursunpo'lat Iskandarov",
+  },
+  description: "IT, Dasturlash, Sun'iy intellekt va zamonaviy kasblar bo'yicha masofaviy ta'lim platformasi. O'zingizga qiziq bo'lgan sohani tanlang va o'rganishni boshlang.",
+  keywords: [
+    "IT", "Dasturlash", "Frontend", "Backend", "Kompyuter savodxonligi", 
+    "Sun'iy intellekt kurslari", "Prompt enjiniring", "Wibe coding kursi", 
+    "kurslar", "online kurslar", "bepul kurslar", "robototexnika kurslari", 
+    "Scratch kurslari", "Figma kurslari", "Tinkercad kurslari", 
+    "Tursunpo'lat Iskandarov", "O'zbekistonda IT kurslar", "Masofaviy ta'lim"
+  ],
+  authors: [{ name: "Tursunpo'lat Iskandarov" }],
+  creator: "Tursunpo'lat Iskandarov",
+  publisher: "Kurslarim",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    title: "Tursunpo'lat Iskandarov | Kurslar",
+    description: "Masofaviy ta'lim platformasi. O'zingizga qiziq bo'lgan sohani tanlang va o'rganishni boshlang.",
+    url: 'https://kurslarim.uz',
+    siteName: 'Kurslarim',
+    images: [
+      {
+        url: '/og-image.jpg', // We should make sure an OG image exists or use a default one
+        width: 1200,
+        height: 630,
+        alt: "Tursunpo'lat Iskandarov Kurslar",
+      },
+    ],
+    locale: 'uz_UZ',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Tursunpo'lat Iskandarov | Kurslar",
+    description: "Masofaviy ta'lim platformasi",
+    creator: "@T_Iskandarov",
+  },
+  manifest: "/manifest.json", 
 };
 
 export const viewport: Viewport = {
