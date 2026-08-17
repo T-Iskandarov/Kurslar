@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import MobileNav from "@/components/MobileNav";
+import Analytics from "@/components/Analytics";
 import { Toaster } from "react-hot-toast";
 
 import Footer from "@/components/Footer";
@@ -50,6 +51,7 @@ export default function RootLayout({
             <MobileNav />
           </div>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
