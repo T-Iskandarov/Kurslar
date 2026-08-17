@@ -17,7 +17,7 @@ export default function AdminDashboardPage() {
   const [coursesStats, setCoursesStats] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"users" | "active_users" | "courses" | "lessons">("courses");
+  const [activeTab, setActiveTab] = useState<"users" | "active_users" | "courses" | "lessons">("users");
 
   useEffect(() => {
     if (authLoading) return;
