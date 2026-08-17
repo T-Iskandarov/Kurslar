@@ -17,8 +17,9 @@ async function getCourse(id: string) {
   }
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const course = await getCourse(params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const course = await getCourse(resolvedParams.id);
 
   if (!course) {
     return {
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     openGraph: {
       title: course.title,
       description: course.description?.substring(0, 160) || "Masofaviy ta'lim platformasi",
-      url: `https://kurslarim.uz/courses/${params.id}`,
+      url: `https://kurslarim.uz/courses/${resolvedParams.id}`,
       siteName: "Kurslarim",
       images: [
         {
@@ -65,9 +66,10 @@ export default async function CourseLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const course = await getCourse(params.id);
+  const resolvedParams = await params;
+  const course = await getCourse(resolvedParams.id);
 
   if (!course) {
     return <>{children}</>;
