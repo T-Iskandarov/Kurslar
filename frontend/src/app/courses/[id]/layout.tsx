@@ -92,7 +92,7 @@ export default async function CourseLayout({
       "sameAs": "https://kurslarim.uz"
     },
     "image": imageUrl,
-    "url": `https://kurslarim.uz/courses/${params.id}`,
+    "url": `https://kurslarim.uz/courses/${resolvedParams.id}`,
     "hasCourseInstance": {
       "@type": "CourseInstance",
       "courseMode": "online",
