@@ -161,6 +161,7 @@ CSRF_TRUSTED_ORIGINS = [
     os.getenv('FRONTEND_URL', 'https://kurslarim.uz'),
     'https://kurslarim.uz',
     'https://api.kurslarim.uz',
+    'http://169.58.49.5',
 ]
 
 # Security (production only)
