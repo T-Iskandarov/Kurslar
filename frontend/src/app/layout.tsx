@@ -58,6 +58,9 @@ export const metadata: Metadata = {
     description: "Masofaviy ta'lim platformasi",
     creator: "@T_Iskandarov",
   },
+  icons: {
+    icon: '/icon.svg',
+  },
   manifest: "/manifest.json", 
 };
 
