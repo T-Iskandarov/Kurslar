@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import MobileNav from "@/components/MobileNav";
 import { Toaster } from "react-hot-toast";
 
 import Footer from "@/components/Footer";
@@ -15,6 +16,15 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Tursunpo'lat Iskandarov",
   description: "Masofaviy ta'lim platformasi",
+  manifest: "/manifest.json", // Next.js will automatically generate this from manifest.ts
+};
+
+export const viewport: Viewport = {
+  themeColor: "#FDFDFE",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -32,11 +42,12 @@ export default function RootLayout({
           <div className="print:hidden">
             <Navbar />
           </div>
-          <main className="flex-1 flex flex-col">
+          <main className="flex-1 flex flex-col pb-16 sm:pb-0">
             {children}
           </main>
           <div className="print:hidden">
             <Footer />
+            <MobileNav />
           </div>
         </AuthProvider>
       </body>
