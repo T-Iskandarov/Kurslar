@@ -20,10 +20,21 @@ const nextConfig: NextConfig = {
         hostname: 'api.kurslarim.uz',
         pathname: '/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'api.kurslarim.uz',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '169.58.49.5',
+        pathname: '/**',
+      },
     ],
     dangerouslyAllowSVG: true,
     dangerouslyAllowLocalIP: true,
   },
+  output: 'standalone',
 };
 
 export default nextConfig;

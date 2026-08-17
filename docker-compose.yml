@@ -53,6 +53,21 @@ services:
     networks:
       - kurslarim_network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${FRONTEND_API_URL:-http://api.kurslarim.uz}
+    container_name: kurslarim_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${FRONTEND_API_URL:-http://api.kurslarim.uz}
+    networks:
+      - kurslarim_network
+
 volumes:
   kurslarim_postgres_data:
   kurslarim_media:
