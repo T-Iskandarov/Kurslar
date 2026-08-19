@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView } from 'react-native';
+import DateTimePicker from 'react-native-ui-datepicker';
+import dayjs from 'dayjs';
+import { View, Text, StyleSheet, Modal, TouchableWithoutFeedback, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Phone, Lock, Eye, EyeOff, User, Calendar, ChevronDown } from 'lucide-react-native';
@@ -126,37 +127,32 @@ export default function RegisterScreen() {
           <Calendar color={COLORS.textLight} size={20} />
         </TouchableOpacity>
 
-        {showDatePicker && (
-          <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, overflow: 'hidden', marginBottom: 20 }}>
-            <DateTimePicker
-              value={dateObj}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              themeVariant="light"
-              maximumDate={new Date()}
-              onChange={(event, selectedDate) => {
-                if (Platform.OS !== 'ios') {
-                  setShowDatePicker(false);
-                }
-                if (selectedDate) {
-                  setDateObj(selectedDate);
-                  const year = selectedDate.getFullYear();
-                  const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                  const day = String(selectedDate.getDate()).padStart(2, '0');
-                  setBirthDate(`${year}-${month}-${day}`);
-                }
-              }}
-            />
-            {Platform.OS === 'ios' && (
+        <Modal visible={showDatePicker} transparent animationType="fade">
+          <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }} activeOpacity={1} onPress={() => setShowDatePicker(false)}>
+            <TouchableOpacity style={{ backgroundColor: 'white', padding: 20, borderRadius: 20, width: '90%' }} activeOpacity={1}>
+              <DateTimePicker
+                mode="single"
+                date={dateObj}
+                maxDate={new Date()}
+                onChange={(params) => {
+                  if (params.date) {
+                    const d = dayjs(params.date).toDate();
+                    setDateObj(d);
+                    setBirthDate(dayjs(d).format('YYYY-MM-DD'));
+                    setShowDatePicker(false);
+                  }
+                }}
+                selectedItemColor={COLORS.primary}
+              />
               <TouchableOpacity 
-                style={{ backgroundColor: COLORS.primary, padding: 12, alignItems: 'center' }}
+                style={{ backgroundColor: COLORS.primary, padding: 12, alignItems: 'center', borderRadius: 8, marginTop: 10 }}
                 onPress={() => setShowDatePicker(false)}
               >
-                <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>Tanlash</Text>
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>Yopish</Text>
               </TouchableOpacity>
-            )}
-          </View>
-        )}
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </Modal>
 
         {/* Jinsingiz */}
         <Text style={styles.label}>Jinsingiz</Text>
@@ -371,5 +367,6 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   }
 });
+
 
 
