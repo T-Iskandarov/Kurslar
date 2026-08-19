@@ -9,7 +9,7 @@ import { UserPlus, Phone, User, Calendar } from "lucide-react";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    phone: "",
+    phone: "+998",
     full_name: "",
     birth_date: "",
     gender: "erkak",
@@ -116,7 +116,13 @@ export default function RegisterPage() {
                 placeholder="+998901234567"
                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 value={formData.phone}
-                onChange={handleChange}
+                onChange={(e) => {
+                  let val = e.target.value;
+                  if (!val.startsWith("+998")) {
+                    val = "+998";
+                  }
+                  setFormData({ ...formData, phone: val });
+                }}
               />
             </div>
           </div>

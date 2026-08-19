@@ -8,7 +8,7 @@ import Link from "next/link";
 import { LogIn, Phone, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("+998");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -83,7 +83,13 @@ export default function LoginPage() {
                 placeholder="+998901234567"
                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  let val = e.target.value;
+                  if (!val.startsWith("+998")) {
+                    val = "+998";
+                  }
+                  setPhone(val);
+                }}
               />
             </div>
           </div>
