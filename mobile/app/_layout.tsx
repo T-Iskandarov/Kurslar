@@ -3,6 +3,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { useAuthStore } from '../src/store/authStore';
 import { View, ActivityIndicator, Platform } from 'react-native';
 import { COLORS } from '../src/constants/theme';
+import { StatusBar } from 'expo-status-bar';
 
 import * as SystemUI from 'expo-system-ui';
 
@@ -40,6 +41,7 @@ export default function RootLayout() {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+      <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.white } }}>
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

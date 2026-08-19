@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Modal, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { User, Lock, Bell, Globe, HelpCircle, LogOut, ChevronRight, AlertCircle, X } from 'lucide-react-native';
+import { User, HelpCircle, LogOut, ChevronRight, AlertCircle, X } from 'lucide-react-native';
 import { COLORS, SIZES, SHADOWS } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
 
@@ -19,10 +19,7 @@ export default function ProfileScreen() {
 
   const menuItems = [
     { icon: User, title: "Shaxsiy ma'lumotlar", onPress: () => router.push('/settings' as any) },
-    { icon: Lock, title: "Parolni o'zgartirish", onPress: () => router.push('/settings/password' as any) },
-    { icon: Bell, title: "Bildirishnomalar", onPress: () => {} },
-    { icon: Globe, title: "Til", value: "O'zbekcha", onPress: () => {} },
-    { icon: HelpCircle, title: "Yordam va qo'llab-quvvatlash", onPress: () => router.push('/support') },
+    { icon: HelpCircle, title: "Yordam va qo'llab-quvvatlash", onPress: () => router.push('/support' as any) },
   ];
 
   return (
@@ -40,10 +37,11 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Menu Items */}
+        {/* Menu Items Card */}
         <View style={styles.menuContainer}>
           {menuItems.map((item, index) => {
             const Icon = item.icon;
+            const isLast = false;
             return (
               <TouchableOpacity 
                 key={index} 
@@ -51,23 +49,28 @@ export default function ProfileScreen() {
                 onPress={item.onPress}
               >
                 <View style={styles.menuItemLeft}>
-                  <Icon color={COLORS.textLight} size={22} style={styles.menuIcon} />
+                  <Icon color="#4B5563" size={22} style={styles.menuIcon} />
                   <Text style={styles.menuItemTitle}>{item.title}</Text>
                 </View>
                 <View style={styles.menuItemRight}>
                   {item.value && <Text style={styles.menuItemValue}>{item.value}</Text>}
-                  <ChevronRight color={COLORS.textLight} size={20} />
+                  <ChevronRight color="#9CA3AF" size={20} />
                 </View>
               </TouchableOpacity>
             );
           })}
+          
+          {/* Logout Button inside the card */}
+          <TouchableOpacity 
+            style={[styles.menuItem, { borderBottomWidth: 0 }]}
+            onPress={() => setShowLogoutModal(true)}
+          >
+            <View style={styles.menuItemLeft}>
+              <LogOut color="#EF4444" size={22} style={styles.menuIcon} />
+              <Text style={[styles.menuItemTitle, { color: '#EF4444' }]}>Chiqish</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-
-        {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton} onPress={() => setShowLogoutModal(true)}>
-          <LogOut color={COLORS.error} size={22} style={styles.menuIcon} />
-          <Text style={styles.logoutText}>Chiqish</Text>
-        </TouchableOpacity>
 
       </ScrollView>
 
@@ -156,29 +159,31 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
+    marginHorizontal: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
   menuItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: SIZES.padding,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: '#F3F4F6',
   },
   menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   menuIcon: {
-    marginRight: 12,
+    marginRight: 16,
   },
   menuItemTitle: {
-    fontSize: 16,
-    color: COLORS.text,
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#1F2937',
   },
   menuItemRight: {
     flexDirection: 'row',
@@ -186,24 +191,8 @@ const styles = StyleSheet.create({
   },
   menuItemValue: {
     fontSize: 14,
-    color: COLORS.textLight,
+    color: '#6B7280',
     marginRight: 8,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: SIZES.padding,
-    backgroundColor: COLORS.white,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
-    marginTop: 24,
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.error,
   },
   modalOverlay: {
     flex: 1,
@@ -280,3 +269,4 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   }
 });
+

@@ -7,7 +7,7 @@ export const COLORS = {
   text: '#111827',
   textLight: '#6b7280',
   border: '#e5e7eb',
-  background: '#f9fafb',
+  background: '#ffffff',
   white: '#ffffff',
   error: '#ef4444',
 };

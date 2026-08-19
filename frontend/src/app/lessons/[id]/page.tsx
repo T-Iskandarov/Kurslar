@@ -14,6 +14,13 @@ export default function LessonDetailPage() {
   const [lesson, setLesson] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const getYoutubeId = (url: string) => {
+    if (!url) return 'dQw4w9WgXcQ';
+    const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : url;
+  };
+
   useEffect(() => {
     const fetchLesson = async () => {
       try {
@@ -56,7 +63,7 @@ export default function LessonDetailPage() {
         <div className="relative w-full aspect-video bg-gray-900">
           {lesson.youtube_video_id ? (
             <iframe
-              src={`https://www.youtube.com/embed/${lesson.youtube_video_id}`}
+              src={`https://www.youtube.com/embed/${getYoutubeId(lesson.youtube_video_id)}`}
               title={lesson.title}
               className="absolute inset-0 w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -89,7 +96,7 @@ export default function LessonDetailPage() {
                 {lesson.resources.map((resource: any) => {
                   const fileUrl = resource.file.startsWith('http') 
                     ? resource.file 
-                    : `${MEDIA_BASE_URL}${resource.file}`;
+                    : `${MEDIA_BASE_URL.replace(/\/$/, '')}/${resource.file.replace(/^\//, '')}`;
                   
                   return (
                     <a
