@@ -6,7 +6,8 @@ import {
   TouchableOpacity, 
   Image, 
   Dimensions, 
-  FlatList 
+  FlatList,
+  Platform
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SIZES } from '../../src/constants/theme';
