@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { BookOpen, Award, Settings, User } from "lucide-react";
+import { BookOpen, Award, Settings, User, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ProfileLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -71,6 +71,14 @@ export default function ProfileLayout({ children }: { children: React.ReactNode 
                   </Link>
                 );
               })}
+              
+              <button
+                onClick={logout}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium text-sm text-red-600 hover:bg-red-50"
+              >
+                <LogOut size={18} />
+                Chiqish
+              </button>
             </nav>
           </div>
         </aside>

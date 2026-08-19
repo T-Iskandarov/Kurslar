@@ -28,7 +28,8 @@ export default function MyCoursesPage() {
         const res = await apiFetch("/auth/my-courses/");
         if (res.ok) {
           const data = await res.json();
-          setCourses(data);
+          const startedCourses = data.filter((course: MyCourse) => course.progress_percent > 0 || course.passed_lessons > 0);
+          setCourses(startedCourses);
         } else {
           toast.error("Kurslarni yuklashda xatolik yuz berdi");
         }
