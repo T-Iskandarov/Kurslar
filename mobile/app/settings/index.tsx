@@ -8,8 +8,7 @@ import {
   ScrollView, 
   KeyboardAvoidingView, 
   Platform,
-  ActivityIndicator,
-  Alert
+  ActivityIndicator
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -17,6 +16,7 @@ import { ChevronLeft, Phone, User, Calendar, Save } from 'lucide-react-native';
 import { COLORS, SIZES } from '../../src/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
 import apiClient from '../../src/api/client';
+import CustomAlert from '../../src/components/CustomAlert';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -26,6 +26,25 @@ export default function SettingsScreen() {
   const [birthDate, setBirthDate] = useState('');
   const [gender, setGender] = useState<'erkak' | 'ayol' | ''>('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<any>({
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: () => setAlertVisible(false),
+  });
+
+  const showAlert = (config: any) => {
+    setAlertConfig({
+      ...config,
+      onConfirm: () => {
+        setAlertVisible(false);
+        if (config.onConfirm) config.onConfirm();
+      }
+    });
+    setAlertVisible(true);
+  };
 
   useEffect(() => {
     if (user) {
@@ -37,7 +56,11 @@ export default function SettingsScreen() {
 
   const handleSave = async () => {
     if (!fullName.trim()) {
-      Alert.alert("Xatolik", "Ism va familiya bo'sh bo'lishi mumkin emas.");
+      showAlert({
+        title: "Xatolik",
+        message: "Ism va familiya bo'sh bo'lishi mumkin emas.",
+        type: "warning"
+      });
       return;
     }
 
@@ -50,12 +73,19 @@ export default function SettingsScreen() {
       });
       
       updateUser(response.data);
-      Alert.alert("Muvaffaqiyatli", "Ma'lumotlaringiz yangilandi.", [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      showAlert({
+        title: "Muvaffaqiyatli",
+        message: "Ma'lumotlaringiz yangilandi.",
+        type: "success",
+        onConfirm: () => router.back()
+      });
     } catch (error: any) {
       console.log('Update profile error:', error);
-      Alert.alert("Xatolik", "Ma'lumotlarni yangilashda xatolik yuz berdi. Iltimos, sanani YYYY-MM-DD shaklida kiritganingizga ishonch hosil qiling.");
+      showAlert({
+        title: "Xatolik",
+        message: "Ma'lumotlarni yangilashda xatolik yuz berdi. Iltimos, sanani YYYY-MM-DD shaklida kiritganingizga ishonch hosil qiling.",
+        type: "error"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -177,6 +207,17 @@ export default function SettingsScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <CustomAlert 
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        confirmText={alertConfig.confirmText}
+        cancelText={alertConfig.cancelText}
+        onConfirm={alertConfig.onConfirm}
+        onCancel={alertConfig.onCancel}
+      />
     </SafeAreaView>
   );
 }
