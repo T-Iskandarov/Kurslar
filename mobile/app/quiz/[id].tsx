@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { COLORS, SIZES } from '../../src/constants/theme';
 import apiClient from '../../src/api/client';
+import CustomAlert from '../../src/components/CustomAlert';
 
 export default function QuizScreen() {
   const { id } = useLocalSearchParams();
@@ -14,6 +15,33 @@ export default function QuizScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState<any>({
+    title: '',
+    message: '',
+    type: 'info',
+    confirmText: 'OK',
+    cancelText: undefined,
+    onConfirm: () => setAlertVisible(false),
+    onCancel: undefined,
+  });
+
+  const showAlert = (config: any) => {
+    setAlertConfig({
+      ...config,
+      confirmText: config.confirmText || 'OK',
+      onConfirm: () => {
+        setAlertVisible(false);
+        if (config.onConfirm) config.onConfirm();
+      },
+      onCancel: config.onCancel ? () => {
+        setAlertVisible(false);
+        config.onCancel();
+      } : undefined
+    });
+    setAlertVisible(true);
+  };
 
   useEffect(() => {
     fetchQuestions();
@@ -42,7 +70,11 @@ export default function QuizScreen() {
 
   const handleSubmit = async () => {
     if (Object.keys(selectedAnswers).length < questions.length) {
-      Alert.alert("Diqqat", "Iltimos, barcha savollarga javob bering.");
+      showAlert({
+        title: "Diqqat",
+        message: "Iltimos, barcha savollarga javob bering.",
+        type: "warning"
+      });
       return;
     }
 
@@ -59,19 +91,32 @@ export default function QuizScreen() {
 
       const result = res.data;
       if (result.passed) {
-        Alert.alert("Tabriklaymiz!", `Siz testdan muvaffaqiyatli o'tdingiz!\nNatija: ${result.score}%`, [
-          { text: "Davom etish", onPress: () => router.back() }
-        ]);
+        showAlert({
+          title: "Tabriklaymiz!",
+          message: `Siz testdan muvaffaqiyatli o'tdingiz!\nNatija: ${result.score}%`,
+          type: "success",
+          confirmText: "Davom etish",
+          onConfirm: () => router.back()
+        });
       } else {
-        Alert.alert("Afsus!", `Siz testdan o'ta olmadingiz.\nNatija: ${result.score}%\nQaytadan urinib ko'ring.`, [
-          { text: "Qayta ishlash", onPress: () => setSelectedAnswers({}) },
-          { text: "Orqaga", onPress: () => router.back() }
-        ]);
+        showAlert({
+          title: "Afsus!",
+          message: `Siz testdan o'ta olmadingiz.\nNatija: ${result.score}%\nQaytadan urinib ko'ring.`,
+          type: "error",
+          confirmText: "Qayta ishlash",
+          cancelText: "Orqaga",
+          onConfirm: () => setSelectedAnswers({}),
+          onCancel: () => router.back()
+        });
       }
       
     } catch (error) {
       console.log('Error submitting test:', error);
-      Alert.alert("Xatolik", "Testni yuborishda xatolik yuz berdi.");
+      showAlert({
+        title: "Xatolik",
+        message: "Testni yuborishda xatolik yuz berdi.",
+        type: "error"
+      });
     } finally {
       setSubmitting(false);
     }
@@ -149,6 +194,16 @@ export default function QuizScreen() {
         </View>
       )}
 
+      <CustomAlert 
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        confirmText={alertConfig.confirmText}
+        cancelText={alertConfig.cancelText}
+        onConfirm={alertConfig.onConfirm}
+        onCancel={alertConfig.onCancel}
+      />
     </SafeAreaView>
   );
 }

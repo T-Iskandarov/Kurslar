@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useAuthStore } from '../src/store/authStore';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Platform } from 'react-native';
 import { COLORS } from '../src/constants/theme';
 
 import * as SystemUI from 'expo-system-ui';

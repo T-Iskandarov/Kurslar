@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, TextInput, ActivityIndicator, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, Filter, PlayCircle, Users, User, Send } from 'lucide-react-native';
+import { Search, Filter, PlayCircle, Users, User, MessageCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, SIZES, SHADOWS } from '../../src/constants/theme';
 import apiClient, { MEDIA_URL } from '../../src/api/client';
@@ -86,7 +86,7 @@ export default function HomeScreen() {
               style={styles.telegramButton}
               onPress={() => Linking.openURL('https://t.me/T_Iskandarov_kurslar_bot')}
             >
-              <Send size={22} color="#0088cc" />
+              <MessageCircle size={22} color="#0088cc" />
             </TouchableOpacity>
         </View>
 
@@ -106,9 +106,6 @@ export default function HomeScreen() {
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Barcha kurslar</Text>
-        <TouchableOpacity>
-          <Text style={styles.seeAllText}>Barchasini ko'rish</Text>
-        </TouchableOpacity>
       </View>
 
       {loading ? (

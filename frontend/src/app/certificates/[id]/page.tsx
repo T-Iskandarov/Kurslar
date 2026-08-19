@@ -109,65 +109,68 @@ export default function CertificatePage() {
         </button>
       </div>
 
-      {/* Certificate Container */}
-      <div 
-        ref={certificateRef}
-        className="w-full max-w-5xl aspect-[1.414/1] bg-white shadow-2xl relative overflow-hidden print:shadow-none flex flex-col"
-      >
-        {/* Decorative Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-4 bg-yellow-600"></div>
-        <div className="absolute top-4 left-0 w-full h-1 bg-yellow-400"></div>
-        <div className="absolute bottom-0 left-0 w-full h-4 bg-yellow-600"></div>
-        <div className="absolute bottom-4 left-0 w-full h-1 bg-yellow-400"></div>
-        
-        {/* Corner Decorations */}
-        <div className="absolute top-10 left-10 w-20 h-20 border-t-4 border-l-4 border-yellow-600 opacity-30"></div>
-        <div className="absolute top-10 right-10 w-20 h-20 border-t-4 border-r-4 border-yellow-600 opacity-30"></div>
-        <div className="absolute bottom-10 left-10 w-20 h-20 border-b-4 border-l-4 border-yellow-600 opacity-30"></div>
-        <div className="absolute bottom-10 right-10 w-20 h-20 border-b-4 border-r-4 border-yellow-600 opacity-30"></div>
+      {/* Certificate Container Wrapper for Mobile */}
+      <div className="w-full max-w-full overflow-x-auto pb-8 flex justify-start md:justify-center">
+        <div 
+          ref={certificateRef}
+          style={{ width: '1000px', minWidth: '1000px', height: '707px', minHeight: '707px' }}
+          className="bg-white shadow-2xl relative overflow-hidden print:shadow-none flex flex-col shrink-0"
+        >
+          {/* Decorative Background Elements */}
+          <div className="absolute top-0 left-0 w-full h-4 bg-yellow-600"></div>
+          <div className="absolute top-4 left-0 w-full h-1 bg-yellow-400"></div>
+          <div className="absolute bottom-0 left-0 w-full h-4 bg-yellow-600"></div>
+          <div className="absolute bottom-4 left-0 w-full h-1 bg-yellow-400"></div>
+          
+          {/* Corner Decorations */}
+          <div className="absolute top-10 left-10 w-20 h-20 border-t-4 border-l-4 border-yellow-600 opacity-30"></div>
+          <div className="absolute top-10 right-10 w-20 h-20 border-t-4 border-r-4 border-yellow-600 opacity-30"></div>
+          <div className="absolute bottom-10 left-10 w-20 h-20 border-b-4 border-l-4 border-yellow-600 opacity-30"></div>
+          <div className="absolute bottom-10 right-10 w-20 h-20 border-b-4 border-r-4 border-yellow-600 opacity-30"></div>
 
-        <div className="flex-1 flex flex-col items-center justify-center p-12 pb-14 text-center relative z-10">
-          <div className="mb-4 flex items-center justify-center w-20 h-20 bg-yellow-50 rounded-full border border-yellow-200">
-            <ShieldCheck size={40} className="text-yellow-600" />
-          </div>
-          
-          <h1 className="text-4xl sm:text-6xl font-serif font-bold text-gray-900 mb-2 uppercase tracking-wider">
-            Sertifikat
-          </h1>
-          <p className="text-base text-yellow-600 uppercase tracking-widest font-semibold mb-8">
-            Muvaffaqiyatli yakunlaganlik uchun
-          </p>
-          
-          <p className="text-gray-600 text-lg mb-2">Ushbu sertifikat</p>
-          <h2 className="text-3xl sm:text-5xl font-serif font-bold text-gray-900 mb-6 border-b-2 border-gray-200 pb-2 px-12 inline-block">
-            {cert.user_name}
-          </h2>
-          
-          <p className="text-gray-600 text-lg mb-2">ga quyidagi kursni muvaffaqiyatli tugatganligi uchun berildi:</p>
-          <h3 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-auto max-w-2xl line-clamp-2">
-            "{cert.course_title}"
-          </h3>
-          
-          <div className="flex justify-between items-center w-full max-w-4xl mt-12 border-t border-gray-200 pt-6 px-8">
-            <div className="text-left flex-1">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Berilgan sana</p>
-              <p className="font-semibold text-gray-900">
-                {format(new Date(cert.issued_at), "d MMMM yyyy", { locale: uz })}
-              </p>
+          <div className="flex-1 flex flex-col items-center justify-center p-12 pb-14 text-center relative z-10">
+            <div className="mb-4 flex items-center justify-center w-20 h-20 bg-yellow-50 rounded-full border border-yellow-200">
+              <ShieldCheck size={40} className="text-yellow-600" />
             </div>
             
-            <div className="text-center flex-1">
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Natija</p>
-              <p className="font-semibold text-gray-900 text-xl">{cert.score}%</p>
-            </div>
+            <h1 className="text-6xl font-serif font-bold text-gray-900 mb-2 uppercase tracking-wider">
+              Sertifikat
+            </h1>
+            <p className="text-base text-yellow-600 uppercase tracking-widest font-semibold mb-8">
+              Muvaffaqiyatli yakunlaganlik uchun
+            </p>
             
-            <div className="text-right flex-1 flex justify-end items-center gap-4">
-              <div className="text-right">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">ID Raqam</p>
-                <p className="font-mono font-semibold text-gray-900 text-sm">{cert.certificate_id}</p>
+            <p className="text-gray-600 text-lg mb-2">Ushbu sertifikat</p>
+            <h2 className="text-5xl font-serif font-bold text-gray-900 mb-6 border-b-2 border-gray-200 pb-2 px-12 inline-block">
+              {cert.user_name}
+            </h2>
+            
+            <p className="text-gray-600 text-lg mb-2">ga quyidagi kursni muvaffaqiyatli tugatganligi uchun berildi:</p>
+            <h3 className="text-3xl font-bold text-gray-800 mb-auto max-w-2xl line-clamp-2">
+              "{cert.course_title}"
+            </h3>
+            
+            <div className="flex justify-between items-center w-full max-w-4xl mt-12 border-t border-gray-200 pt-6 px-8">
+              <div className="text-left flex-1">
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Berilgan sana</p>
+                <p className="font-semibold text-gray-900">
+                  {format(new Date(cert.issued_at), "d MMMM yyyy", { locale: uz })}
+                </p>
               </div>
-              <div className="flex items-center justify-center bg-white p-1 border border-gray-200 rounded shadow-sm">
-                <img src={qrCodeUrl} alt="QR Code for verification" className="w-14 h-14" />
+              
+              <div className="text-center flex-1">
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Natija</p>
+                <p className="font-semibold text-gray-900 text-xl">{cert.score}%</p>
+              </div>
+              
+              <div className="text-right flex-1 flex justify-end items-center gap-4">
+                <div className="text-right">
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-0.5">ID Raqam</p>
+                  <p className="font-mono font-semibold text-gray-900 text-sm">{cert.certificate_id}</p>
+                </div>
+                <div className="flex items-center justify-center bg-white p-1 border border-gray-200 rounded shadow-sm">
+                  <img src={qrCodeUrl} alt="QR Code for verification" className="w-14 h-14" />
+                </div>
               </div>
             </div>
           </div>

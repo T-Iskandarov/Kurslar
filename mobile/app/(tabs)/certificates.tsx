@@ -1,48 +1,75 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Download, Award } from 'lucide-react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { COLORS, SIZES, SHADOWS } from '../../src/constants/theme';
+import apiClient from '../../src/api/client';
+import CustomAlert from '../../src/components/CustomAlert';
 
 export default function CertificatesScreen() {
+  const [certificates, setCertificates] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  // Dummy data representing user's certificates
-  const certificates = [
-    {
-      id: '1',
-      title: 'FRONTEND ASOSLARI',
-      studentName: 'Ismoilova Xilola',
-      date: '13.08.2026',
-      certId: '#FT-00123',
-      color: COLORS.primary
-    },
-    {
-      id: '2',
-      title: 'KOMPYUTER SAVODXONLIGI',
-      studentName: 'Ismoilova Xilola',
-      date: '05.08.2026',
-      certId: '#KC-00687',
-      color: '#fbbf24' // Yellow/Gold
-    }
-  ];
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'info' as any });
 
-  const renderCertificate = ({ item }: any) => {
+  useEffect(() => {
+    fetchCertificates();
+  }, []);
+
+  const fetchCertificates = async () => {
+    try {
+      const res = await apiClient.get('/auth/my-certificates/');
+      setCertificates(res.data?.results || res.data || []);
+    } catch (error) {
+      console.log('Error fetching certificates', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+
+  const handleDownload = async (certId: string) => {
+    try {
+      // Veb saytdagi sertifikat manzilini ochamiz
+      const url = `https://kurslarim.uz/certificates/${certId}`;
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      setAlertConfig({
+        title: 'Xatolik',
+        message: 'Brauzerni ochishda xatolik yuz berdi!',
+        type: 'error'
+      });
+      setAlertVisible(true);
+    }
+  };
+
+  const renderCertificate = ({ item, index }: any) => {
+    const color = index % 2 === 0 ? COLORS.primary : '#fbbf24'; // Alternate colors
+    
     return (
-      <View style={[styles.card, { borderColor: item.color + '40' }]}>
+      <View style={[styles.card, { borderColor: color + '40' }]}>
         <View style={styles.cardHeader}>
-          <Text style={[styles.courseTitle, { color: item.color }]}>{item.title}</Text>
-          <Award size={32} color={item.color} />
+          <Text style={[styles.courseTitle, { color: color }]}>{item.course_title?.toUpperCase()}</Text>
+          <Award size={32} color={color} />
         </View>
 
-        <Text style={styles.studentName}>{item.studentName}</Text>
+        <Text style={styles.studentName}>{item.user_name}</Text>
 
         <View style={styles.infoRow}>
-          <Text style={styles.infoText}>Sana: {item.date}</Text>
-          <Text style={styles.infoText}>ID: {item.certId}</Text>
+          <Text style={styles.infoText}>Sana: {formatDate(item.issued_at)}</Text>
+          <Text style={styles.infoText}>ID: {item.certificate_id}</Text>
         </View>
 
-        <TouchableOpacity style={styles.downloadButton}>
-          <Download size={18} color={item.color} style={{ marginRight: 8 }} />
-          <Text style={[styles.downloadText, { color: item.color }]}>Yuklab olish</Text>
+        <TouchableOpacity style={styles.downloadButton} onPress={() => handleDownload(item.certificate_id)}>
+          <Download size={18} color={color} style={{ marginRight: 8 }} />
+          <Text style={[styles.downloadText, { color: color }]}>Yuklab olish</Text>
         </TouchableOpacity>
       </View>
     );
@@ -54,12 +81,27 @@ export default function CertificatesScreen() {
         <Text style={styles.title}>Sertifikatlarim</Text>
       </View>
 
-      <FlatList
-        data={certificates}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCertificate}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
+      {loading ? (
+        <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
+      ) : (
+        <FlatList
+          data={certificates}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderCertificate}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>Sizda hozircha sertifikatlar yo'q. Kurslarni to'liq yakunlang!</Text>
+          }
+        />
+      )}
+
+      <CustomAlert 
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onConfirm={() => setAlertVisible(false)}
       />
     </SafeAreaView>
   );
@@ -137,5 +179,11 @@ const styles = StyleSheet.create({
   downloadText: {
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: COLORS.textLight,
+    marginTop: 40,
+    fontSize: 16,
   }
 });

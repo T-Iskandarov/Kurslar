@@ -11,9 +11,6 @@ export default function MyCoursesScreen() {
   const router = useRouter();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('Barchasi');
-
-  const tabs = ['Barchasi', 'Davom etilayotgan', 'Tugallangan'];
 
   useEffect(() => {
     fetchMyCourses();
@@ -21,18 +18,13 @@ export default function MyCoursesScreen() {
 
   const fetchMyCourses = async () => {
     try {
-      // In a real app, this would be a specific endpoint for user's courses
-      const res = await apiClient.get('/courses/');
-      const data = res.data?.results || res.data;
-      // In a real app, there would be an endpoint like /users/my-courses/
-      // or we filter by user progress. Here we'll just map and mock it.
-      const coursesWithProgress = (Array.isArray(data) ? data : []).map((c: any) => ({
-        ...c,
-        progress: c.user_progress_percent || Math.floor(Math.random() * 100), // Fallback for UI testing
-        totalLessons: c.lessons_count || 10,
-        completedLessons: Math.floor((c.user_progress_percent || 0) / 10)
-      }));
-      setCourses(coursesWithProgress);
+      const res = await apiClient.get('/auth/my-courses/');
+      // Filter out courses where they haven't passed any lesson, to match user request: 
+      // "hali birorta ham bosqichan o'tmagan kurs bo'lsa chiqmasin"
+      const startedCourses = (res.data || []).filter(
+        (c: any) => c.passed_lessons > 0 || c.is_completed
+      );
+      setCourses(startedCourses);
     } catch (error) {
       console.log('Error fetching my courses:', error);
       setCourses([]);
@@ -41,21 +33,14 @@ export default function MyCoursesScreen() {
     }
   };
 
-  const getFilteredCourses = () => {
-    if (activeTab === 'Davom etilayotgan') {
-      return courses.filter(c => c.progress > 0 && c.progress < 100);
-    } else if (activeTab === 'Tugallangan') {
-      return courses.filter(c => c.progress === 100);
-    }
-    return courses; // 'Barchasi'
-  };
-
   const renderCourseCard = ({ item }: any) => {
     const imageUrl = item.thumbnail 
       ? (item.thumbnail.startsWith('http') ? item.thumbnail : `${MEDIA_URL}${item.thumbnail}`)
       : "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
 
-    const isCompleted = item.progress === 100;
+    const isCompleted = item.is_completed;
+    const progress = item.progress_percent || 0;
+    const primaryColor = isCompleted ? COLORS.success : COLORS.primary;
 
     return (
       <TouchableOpacity 
@@ -68,12 +53,12 @@ export default function MyCoursesScreen() {
           
           <View style={styles.progressInfo}>
             <Text style={styles.progressTextDetail}>
-              {item.completedLessons} / {item.totalLessons} dars
+              {item.passed_lessons} / {item.total_lessons} dars
             </Text>
             {isCompleted ? (
               <CheckCircle2 color={COLORS.success} size={20} />
             ) : (
-              <Text style={styles.progressPercent}>{item.progress}%</Text>
+              <Text style={styles.progressPercent}>{progress}%</Text>
             )}
           </View>
 
@@ -81,7 +66,7 @@ export default function MyCoursesScreen() {
             <View 
               style={[
                 styles.progressBarFill, 
-                { width: `${item.progress}%`, backgroundColor: isCompleted ? COLORS.success : COLORS.primary }
+                { width: `${progress}%`, backgroundColor: primaryColor }
               ]} 
             />
           </View>
@@ -96,31 +81,20 @@ export default function MyCoursesScreen() {
         <Text style={styles.title}>Mening kurslarim</Text>
       </View>
 
-      <View style={styles.tabsContainer}>
-        {tabs.map((tab) => (
-          <TouchableOpacity 
-            key={tab} 
-            style={[styles.tab, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab)}
-          >
-            <Text style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
-              {tab}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 40 }} />
       ) : (
         <FlatList
-          data={getFilteredCourses()}
+          key={2}
+          data={courses}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderCourseCard}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>Hozircha kurslar yo'q</Text>
+            <Text style={styles.emptyText}>Sizda hozircha o'qilayotgan kurslar yo'q</Text>
           }
         />
       )}
@@ -136,69 +110,45 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: SIZES.padding,
     paddingTop: 16,
-    paddingBottom: 8,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: COLORS.text,
   },
-  tabsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: SIZES.padding,
-    marginBottom: 16,
-    gap: 8,
-  },
-  tab: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  activeTab: {
-    backgroundColor: COLORS.primaryLight,
-    borderColor: COLORS.primaryLight,
-  },
-  tabText: {
-    fontSize: 14,
-    color: COLORS.textLight,
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: COLORS.primary,
-    fontWeight: '600',
-  },
   listContainer: {
     padding: SIZES.padding,
     paddingBottom: 100,
+  },
+  row: {
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
   card: {
     backgroundColor: COLORS.white,
     borderRadius: SIZES.radiusLg,
     padding: 12,
-    flexDirection: 'row',
-    marginBottom: 16,
+    width: '48%',
     borderWidth: 1,
     borderColor: COLORS.border,
     ...SHADOWS.light,
   },
   cardImage: {
-    width: 80,
-    height: 80,
+    width: '100%',
+    height: 110,
     borderRadius: SIZES.radius,
+    marginBottom: 12,
   },
   cardContent: {
     flex: 1,
-    marginLeft: 16,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     color: COLORS.text,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   progressInfo: {
     flexDirection: 'row',
@@ -207,12 +157,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   progressTextDetail: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.textLight,
     fontWeight: '500',
   },
   progressPercent: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.textLight,
     fontWeight: '600',
   },

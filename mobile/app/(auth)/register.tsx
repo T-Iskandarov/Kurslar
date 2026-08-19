@@ -201,13 +201,13 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {Platform.OS === 'ios' ? (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
-          {renderContent()}
-        </KeyboardAvoidingView>
-      ) : (
-        renderContent()
-      )}
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        {renderContent()}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
