@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +20,8 @@ export default function RegisterScreen() {
   
   const [showPassword, setShowPassword] = useState(false);
   const [showGenderPicker, setShowGenderPicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dateObj, setDateObj] = useState(new Date(2000, 0, 1));
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -31,7 +34,7 @@ export default function RegisterScreen() {
 
     setIsLoading(true);
     try {
-      const cleanPhone = phone.replace(/\s+/g, '');
+      const cleanPhone = phone.replace(/[^\d]/g, '');
       
       await apiClient.post('/auth/register/', {
         phone: cleanPhone,
@@ -95,7 +98,7 @@ export default function RegisterScreen() {
             style={[styles.input, { paddingLeft: 0 }]}
             value={fullName}
             onChangeText={setFullName}
-            placeholder="Ismoilova Xilola"
+            placeholder="Ism va familiyangizni kiriting"
             placeholderTextColor={COLORS.textLight}
           />
         </View>
@@ -116,16 +119,44 @@ export default function RegisterScreen() {
 
         {/* Tug'ilgan sana */}
         <Text style={styles.label}>Tug'ilgan sana (YYYY-MM-DD)</Text>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={birthDate}
-            onChangeText={setBirthDate}
-            placeholder="2000-12-31"
-            placeholderTextColor={COLORS.textLight}
-          />
+        <TouchableOpacity style={styles.inputContainer} onPress={() => setShowDatePicker(true)}>
+          <Text style={[styles.input, { paddingTop: 16 }, !birthDate && { color: COLORS.textLight }]}>
+            {birthDate || '2000-12-31'}
+          </Text>
           <Calendar color={COLORS.textLight} size={20} />
-        </View>
+        </TouchableOpacity>
+
+        {showDatePicker && (
+          <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, overflow: 'hidden', marginBottom: 20 }}>
+            <DateTimePicker
+              value={dateObj}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              themeVariant="light"
+              maximumDate={new Date()}
+              onChange={(event, selectedDate) => {
+                if (Platform.OS !== 'ios') {
+                  setShowDatePicker(false);
+                }
+                if (selectedDate) {
+                  setDateObj(selectedDate);
+                  const year = selectedDate.getFullYear();
+                  const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                  const day = String(selectedDate.getDate()).padStart(2, '0');
+                  setBirthDate(`${year}-${month}-${day}`);
+                }
+              }}
+            />
+            {Platform.OS === 'ios' && (
+              <TouchableOpacity 
+                style={{ backgroundColor: COLORS.primary, padding: 12, alignItems: 'center' }}
+                onPress={() => setShowDatePicker(false)}
+              >
+                <Text style={{ color: COLORS.white, fontWeight: 'bold' }}>Tanlash</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
 
         {/* Jinsingiz */}
         <Text style={styles.label}>Jinsingiz</Text>
@@ -340,3 +371,5 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   }
 });
+
+
