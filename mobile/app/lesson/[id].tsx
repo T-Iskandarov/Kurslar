@@ -164,7 +164,11 @@ export default function LessonScreen() {
       <View style={styles.bottomBar}>
         <TouchableOpacity 
           style={styles.telegramButton}
-          onPress={() => Linking.openURL('https://t.me/T_Iskandarov_kurslar_bot')}
+          onPress={() => {
+            const text = `Kurs: ${lesson?.course_title || 'Noma\'lum'}\nMavzu: ${lesson?.order}-dars. ${lesson?.title || 'Noma\'lum'}\n\nSavolim: `;
+            const encodedText = encodeURIComponent(text);
+            Linking.openURL(`https://t.me/T_Iskandarov_kurslar_bot?text=${encodedText}`);
+          }}
         >
           <Text style={styles.telegramButtonText}>Savol berish{"\n"}(Telegram)</Text>
         </TouchableOpacity>
