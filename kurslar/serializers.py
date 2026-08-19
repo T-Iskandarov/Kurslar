@@ -9,7 +9,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['phone', 'full_name', 'birth_date', 'gender', 'password']
 
     def validate_phone(self, value):
-        if not value.isdigit() or not (9 <= len(value) <= 15):
+        val = value.replace('+', '')
+        if not val.isdigit() or not (9 <= len(val) <= 15):
             raise serializers.ValidationError("Telefon raqami faqat raqamlardan iborat bo'lishi va 9 dan 15 gacha belgi uzunligida bo'lishi kerak.")
         return value
 
