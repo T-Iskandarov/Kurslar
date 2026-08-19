@@ -20,19 +20,19 @@ const SLIDES = [
   {
     id: '1',
     isFirst: true,
-    image: 'https://cdn-icons-png.flaticon.com/512/3135/3135810.png',
+    image: require('../../assets/images/onboarding/p1.png'),
   },
   {
     id: '2',
     isFirst: false,
-    image: 'https://cdn-icons-png.flaticon.com/512/2436/2436874.png',
+    image: require('../../assets/images/onboarding/p2.png'),
     title: 'Sifatli ta\'lim\nva qulaylik',
     description: 'Istalgan joyda, istalgan vaqtda videodarslarni ko\'ring va o\'rganing.',
   },
   {
     id: '3',
     isFirst: false,
-    image: 'https://cdn-icons-png.flaticon.com/512/3048/3048122.png',
+    image: require('../../assets/images/onboarding/p3.png'),
     title: 'Yangi bilimlar sari\nbirinchi qadam',
     description: 'Sifatli video darslar, testlar va sertifikatlar sizni kutmoqda.',
   }
@@ -76,7 +76,7 @@ export default function WelcomeScreen() {
           
           <View style={styles.firstSlideImageContainer}>
             <Image 
-              source={{ uri: item.image }} 
+              source={item.image} 
               style={styles.imageFirst}
               resizeMode="contain"
             />
@@ -89,7 +89,7 @@ export default function WelcomeScreen() {
       <View style={styles.slide}>
         <View style={styles.imageContainer}>
           <Image 
-            source={{ uri: item.image }} 
+            source={item.image} 
             style={styles.image}
             resizeMode="contain"
           />
