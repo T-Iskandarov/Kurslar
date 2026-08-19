@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Linking, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Linking, Modal, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Download, Info } from 'lucide-react-native';
+import YoutubeIframe from 'react-native-youtube-iframe';
 import { COLORS, SIZES } from '../../src/constants/theme';
 import apiClient, { MEDIA_URL } from '../../src/api/client';
 
@@ -74,22 +75,15 @@ export default function LessonScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         
-        {/* YouTube Video Player (Fallback to Web/App for Expo Go compatibility) */}
-        <TouchableOpacity 
-          style={styles.videoContainer}
-          onPress={() => Linking.openURL(`https://www.youtube.com/watch?v=${videoId}`)}
-        >
-          <Image 
-            source={{ uri: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` }} 
-            style={styles.videoThumbnail}
-            contentFit="cover"
+        {/* YouTube Video Player */}
+        <View style={styles.videoContainer}>
+          <YoutubeIframe
+            height={Dimensions.get('window').width * (9 / 16)}
+            width={Dimensions.get('window').width}
+            videoId={videoId}
+            play={false}
           />
-          <View style={styles.videoOverlay}>
-            <View style={styles.playButtonCircle}>
-              <Text style={styles.playButtonTriangle}>▶</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
+        </View>
 
         {/* Tabs */}
         <View style={styles.tabsContainer}>
