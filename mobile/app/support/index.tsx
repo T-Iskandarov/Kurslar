@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Phone, Send, Instagram, Youtube, Heart } from 'lucide-react-native';
+import { ChevronLeft, Phone, Send, Camera, Tv, Heart } from 'lucide-react-native';
 import { COLORS, SIZES } from '../../src/constants/theme';
 
 export default function SupportScreen() {
@@ -73,7 +73,7 @@ export default function SupportScreen() {
               onPress={() => handleOpenLink('https://instagram.com/T_Iskandarov_')}
             >
               <View style={[styles.iconBox, { backgroundColor: '#FDF2F8' }]}>
-                <Instagram color="#E1306C" size={22} />
+                <Camera color="#E1306C" size={22} />
               </View>
               <View style={styles.linkTextContainer}>
                 <Text style={styles.linkLabel}>Instagram</Text>
@@ -86,7 +86,7 @@ export default function SupportScreen() {
               onPress={() => handleOpenLink('https://youtube.com/@T_Iskandarov')}
             >
               <View style={[styles.iconBox, { backgroundColor: '#FFE5E5' }]}>
-                <Youtube color="#FF0000" size={22} />
+                <Tv color="#FF0000" size={22} />
               </View>
               <View style={styles.linkTextContainer}>
                 <Text style={styles.linkLabel}>YouTube</Text>
