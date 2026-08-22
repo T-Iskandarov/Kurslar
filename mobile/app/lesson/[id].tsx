@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Download, Info } from 'lucide-react-native';
-import * as WebBrowser from 'expo-web-browser';
+import { WebView } from 'react-native-webview';
 import { COLORS, SIZES } from '../../src/constants/theme';
 import apiClient, { MEDIA_URL } from '../../src/api/client';
 
@@ -75,22 +75,17 @@ export default function LessonScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         
-        {/* YouTube Video Player (Fallback for Expo Go) */}
-        <TouchableOpacity 
-          style={styles.videoContainer}
-          onPress={() => WebBrowser.openBrowserAsync(`https://www.youtube.com/watch?v=${videoId}`)}
-        >
-          <Image 
-            source={{ uri: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` }} 
-            style={styles.videoThumbnail}
-            contentFit="cover"
+        {/* YouTube Video Player - In-App */}
+        <View style={styles.videoContainer}>
+          <WebView
+            source={{ uri: `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1` }}
+            style={{ flex: 1 }}
+            allowsFullscreenVideo={true}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            mediaPlaybackRequiresUserAction={false}
           />
-          <View style={styles.videoOverlay}>
-            <View style={styles.playButtonCircle}>
-              <Text style={styles.playButtonTriangle}>▶</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
+        </View>
 
         {/* Tabs */}
         <View style={styles.tabsContainer}>
