@@ -36,6 +36,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: course.title,
     description: course.description?.substring(0, 160) + (course.description?.length > 160 ? "..." : "") || "Masofaviy ta'lim platformasi",
+    alternates: {
+      canonical: `/courses/${resolvedParams.id}`,
+    },
+    authors: [{ name: "Tursunpo'lat Iskandarov", url: "https://kurslarim.uz" }],
     openGraph: {
       title: course.title,
       description: course.description?.substring(0, 160) || "Masofaviy ta'lim platformasi",
