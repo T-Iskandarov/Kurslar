@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator }
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Download, Award } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
+import { useRouter } from 'expo-router';
 import { COLORS, SIZES, SHADOWS } from '../../src/constants/theme';
 import apiClient from '../../src/api/client';
 import CustomAlert from '../../src/components/CustomAlert';
 
 export default function CertificatesScreen() {
+  const router = useRouter();
   const [certificates, setCertificates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -91,7 +93,19 @@ export default function CertificatesScreen() {
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>Sizda hozircha sertifikatlar yo'q. Kurslarni to'liq yakunlang!</Text>
+            <View style={styles.emptyContainer}>
+              <View style={styles.emptyIconContainer}>
+                <Award color={COLORS.primary} size={48} strokeWidth={1.5} />
+              </View>
+              <Text style={styles.emptyTitle}>Sertifikatlar yo'q</Text>
+              <Text style={styles.emptyDesc}>Sizda hozircha sertifikatlar mavjud emas. Kurslarni to'liq yakunlab, o'z sertifikatlaringizga ega bo'ling!</Text>
+              <TouchableOpacity 
+                style={styles.emptyButton}
+                onPress={() => router.push('/(tabs)/my-courses')}
+              >
+                <Text style={styles.emptyButtonText}>Mening kurslarim</Text>
+              </TouchableOpacity>
+            </View>
           }
         />
       )}

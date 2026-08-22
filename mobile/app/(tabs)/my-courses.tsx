@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { CheckCircle2 } from 'lucide-react-native';
+import { CheckCircle2, BookOpen } from 'lucide-react-native';
 import { COLORS, SIZES, SHADOWS } from '../../src/constants/theme';
 import apiClient, { MEDIA_URL } from '../../src/api/client';
 import { useAuthStore } from '../../src/store/authStore';
@@ -94,7 +94,19 @@ export default function MyCoursesScreen() {
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>Sizda hozircha o'qilayotgan kurslar yo'q</Text>
+            <View style={styles.emptyContainer}>
+              <View style={styles.emptyIconContainer}>
+                <BookOpen color={COLORS.primary} size={48} strokeWidth={1.5} />
+              </View>
+              <Text style={styles.emptyTitle}>Kurslar mavjud emas</Text>
+              <Text style={styles.emptyDesc}>Sizda hozircha o'qilayotgan kurslar yo'q. Yangi bilimlarni kashf etish uchun kurslarga yoziling.</Text>
+              <TouchableOpacity 
+                style={styles.emptyButton}
+                onPress={() => router.push('/(tabs)/')}
+              >
+                <Text style={styles.emptyButtonText}>Kurslarni ko'rish</Text>
+              </TouchableOpacity>
+            </View>
           }
         />
       )}
