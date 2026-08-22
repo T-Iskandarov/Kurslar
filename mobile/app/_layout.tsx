@@ -5,7 +5,6 @@ import { View, ActivityIndicator, Platform } from 'react-native';
 import { COLORS } from '../src/constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
-import * as NavigationBar from 'expo-navigation-bar';
 
 export default function RootLayout() {
   const { checkAuth, isAuthenticated, isLoading } = useAuthStore();
@@ -15,10 +14,6 @@ export default function RootLayout() {
   useEffect(() => {
     checkAuth();
     SystemUI.setBackgroundColorAsync('#ffffff');
-    if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#ffffff');
-      NavigationBar.setButtonStyleAsync('dark');
-    }
   }, []);
 
   useEffect(() => {
