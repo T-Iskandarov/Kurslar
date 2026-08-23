@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { apiFetch, removeTokens } from "@/lib/api";
+import { apiFetch, removeTokens, getTokens } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 interface User {
