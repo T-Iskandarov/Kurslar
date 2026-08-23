@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Download, Info } from 'lucide-react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { WebView } from 'react-native-webview';
 import { COLORS, SIZES } from '../../src/constants/theme';
 import apiClient, { MEDIA_URL } from '../../src/api/client';
@@ -19,6 +20,9 @@ export default function LessonScreen() {
 
   useEffect(() => {
     fetchLessonDetails();
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+    };
   }, [id]);
 
   const fetchLessonDetails = async () => {
@@ -38,6 +42,35 @@ export default function LessonScreen() {
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : url;
   };
+
+  const handleWebViewMessage = (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data.type === 'fullscreen') {
+        if (data.isFullscreen) {
+          ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE).catch(() => {});
+        } else {
+          ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+        }
+      }
+    } catch(e) {}
+  };
+
+  const INJECTED_JAVASCRIPT = `
+    document.addEventListener('fullscreenchange', function() {
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'fullscreen',
+        isFullscreen: !!document.fullscreenElement
+      }));
+    });
+    document.addEventListener('webkitfullscreenchange', function() {
+      window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'fullscreen',
+        isFullscreen: !!document.webkitFullscreenElement
+      }));
+    });
+    true;
+  `;
 
   if (loading) {
     return (
@@ -78,13 +111,29 @@ export default function LessonScreen() {
         {/* YouTube Video Player - In-App */}
         <View style={styles.videoContainer}>
           <WebView
-            source={{ uri: `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1` }}
+            source={{ 
+              uri: `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&playsinline=1`,
+              headers: {
+                'Referer': 'https://www.kurslarim.uz/',
+                'Origin': 'https://www.kurslarim.uz'
+              }
+            }}
             style={{ flex: 1 }}
             allowsFullscreenVideo={true}
+            allowsInlineMediaPlayback={true}
+            userAgent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
             javaScriptEnabled={true}
             domStorageEnabled={true}
             mediaPlaybackRequiresUserAction={false}
+            onMessage={handleWebViewMessage}
+            injectedJavaScript={INJECTED_JAVASCRIPT}
           />
+          <TouchableOpacity 
+            style={{ position: 'absolute', bottom: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 }}
+            onPress={() => Linking.openURL(`https://youtube.com/watch?v=${videoId}`)}
+          >
+            <Text style={{ color: '#fff', fontSize: 12 }}>Youtube'da ochish</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Tabs */}

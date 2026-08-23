@@ -16,8 +16,15 @@ export default function RootLayout() {
     checkAuth();
     SystemUI.setBackgroundColorAsync('#ffffff');
     if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#ffffff');
-      NavigationBar.setButtonStyleAsync('dark');
+      const setNav = async () => {
+        try {
+          await NavigationBar.setBackgroundColorAsync('#ffffff');
+          await NavigationBar.setButtonStyleAsync('dark');
+        } catch (e) {
+          console.warn(e);
+        }
+      };
+      setNav();
     }
   }, []);
 
