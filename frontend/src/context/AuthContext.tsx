@@ -30,6 +30,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      const { access } = getTokens() || {};
+      if (!access) {
+        setLoading(false);
+        return;
+      }
+      
       try {
         const res = await apiFetch("/auth/profile/");
         if (res.ok) {
