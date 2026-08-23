@@ -72,8 +72,8 @@ export default function RegisterPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-sm border border-gray-100">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-green-50 text-green-600 rounded-xl mb-4">
-            <UserPlus size={24} />
+          <div className="flex justify-center mb-4">
+            <img src="/logo.png" alt="Kurslarim" className="w-16 h-16 object-contain" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Ro'yxatdan o'tish</h2>
           <p className="text-gray-500 mt-2 text-sm">Yangi profil yarating va o'qishni boshlang</p>

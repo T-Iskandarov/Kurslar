@@ -41,8 +41,8 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <div className="bg-blue-600 text-white p-1.5 rounded-lg">
-                    <BookOpen size={20} />
+                  <div>
+                    <img src="/logo.png" alt="Kurslarim" className="w-8 h-8 object-contain" />
                   </div>
                   <span className="text-xl font-bold text-gray-900 tracking-tight">
                     Tursunpo'lat Iskandarov <span className="text-blue-600">kurslari</span>
