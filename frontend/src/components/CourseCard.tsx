@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { BookOpen, User, PlayCircle } from "lucide-react";
 
+import Image from "next/image";
+
 interface CourseProps {
   id: number;
   title: string;
@@ -12,21 +14,26 @@ interface CourseProps {
 }
 
 export default function CourseCard({ course }: { course: CourseProps }) {
-  // Use placeholder image if no thumbnail
-  const imageUrl = course.thumbnail 
-    ? course.thumbnail 
-    : "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+  const mediaBase = process.env.NEXT_PUBLIC_API_URL 
+    ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1', '') 
+    : "http://144.91.79.232:8000";
+
+  let imageUrl = "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+  if (course.thumbnail) {
+    imageUrl = course.thumbnail.startsWith('http') ? course.thumbnail : `${mediaBase}${course.thumbnail}`;
+  }
 
   return (
     <Link href={`/courses/${course.id}`} className="block group">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col h-full">
         <div className="relative h-48 w-full overflow-hidden bg-gray-100 p-2">
-          <img 
+          <Image 
             src={imageUrl} 
             alt={course.title} 
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
           />
-
         </div>
         
         <div className="p-5">

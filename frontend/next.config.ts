@@ -20,6 +20,17 @@ const nextConfig: NextConfig = {
         hostname: 'api.kurslarim.uz',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '144.91.79.232',
+        port: '8000',
+        pathname: '/**',
+      },
     ],
     dangerouslyAllowSVG: true,
     dangerouslyAllowLocalIP: true,
