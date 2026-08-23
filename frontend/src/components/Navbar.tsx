@@ -42,7 +42,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <div>
-                    <img src="/logo.png" alt="Kurslarim" className="w-8 h-8 object-contain" />
+                    <img src="/logo-opt.png" alt="Kurslarim" className="w-8 h-8 object-contain" />
                   </div>
                   <span className="text-xl font-bold text-gray-900 tracking-tight">
                     Tursunpo'lat Iskandarov <span className="text-blue-600">kurslari</span>
