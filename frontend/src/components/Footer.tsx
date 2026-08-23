@@ -20,7 +20,9 @@ export default function Footer() {
           {/* Brand/About */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <img src="/logo.png" alt="Kurslarim" className="w-8 h-8 object-contain" />
+              <div className="bg-blue-600 text-white p-1.5 rounded-lg w-8 h-8 flex items-center justify-center">
+                <BookOpen size={20} />
+              </div>
               <span className="text-xl font-bold text-gray-900 tracking-tight">
                 Tursunpo'lat Iskandarov <span className="text-blue-600">kurslari</span>
               </span>

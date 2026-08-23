@@ -73,8 +73,8 @@ export const metadata: Metadata = {
     creator: "@T_Iskandarov",
   },
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/icon.svg?v=4',
+    apple: '/icon.svg?v=4',
   },
   manifest: "/manifest.json",
 };

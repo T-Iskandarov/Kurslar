@@ -55,8 +55,8 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-sm border border-gray-100">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <img src="/logo.png" alt="Kurslarim" className="w-16 h-16 object-contain" />
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-600 rounded-xl mb-4">
+            <LogIn size={24} />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Tizimga kirish</h2>
           <p className="text-gray-500 mt-2 text-sm">O'quv platformamizga xush kelibsiz</p>

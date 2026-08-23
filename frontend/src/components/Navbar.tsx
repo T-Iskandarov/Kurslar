@@ -20,10 +20,35 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/" className="flex-shrink-0 flex items-center gap-2">
-              <img src="/logo.png" alt="Kurslarim" className="w-8 h-8 object-contain" />
-              <span className="text-xl font-bold text-gray-900 tracking-tight">
-                Tursunpo'lat Iskandarov <span className="text-blue-600">kurslari</span>
-              </span>
+              {user ? (
+                <>
+                  <div className={`p-1.5 rounded-lg text-white ${user.gender === 'ayol' ? 'bg-pink-500' : 'bg-blue-600'}`}>
+                    {user.gender === 'ayol' ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M8 7v2c0 2-2 4-2 4"/>
+                        <path d="M16 7v2c0 2 2 4 2 4"/>
+                      </svg>
+                    ) : (
+                      <User size={20} />
+                    )}
+                  </div>
+                  <span className="text-xl font-bold tracking-tight">
+                    <span className="text-gray-900">{user.full_name?.split(' ')[0]}</span>{' '}
+                    <span className="text-blue-600">{user.full_name?.split(' ').slice(1).join(' ')}</span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div className="bg-blue-600 text-white p-1.5 rounded-lg">
+                    <BookOpen size={20} />
+                  </div>
+                  <span className="text-xl font-bold text-gray-900 tracking-tight">
+                    Tursunpo'lat Iskandarov <span className="text-blue-600">kurslari</span>
+                  </span>
+                </>
+              )}
             </Link>
           </div>
           <div className="hidden sm:flex items-center gap-4">
