@@ -37,7 +37,7 @@ export default function CourseCard({ course }: { course: CourseProps }) {
         </div>
         
         <div className="p-5">
-          <h3 className="font-bold text-xl text-gray-900 leading-tight line-clamp-1 mb-1">{course.title}</h3>
+          <h2 className="font-bold text-xl text-gray-900 leading-tight line-clamp-1 mb-1">{course.title}</h2>
           <p className="text-gray-500 text-sm line-clamp-2 mb-4">
             {course.description}
           </p>

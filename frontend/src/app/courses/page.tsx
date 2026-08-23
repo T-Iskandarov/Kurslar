@@ -78,7 +78,7 @@ export default function CoursesPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-50 text-gray-400 rounded-full mb-4">
             <Search size={24} />
           </div>
-          <h3 className="text-lg font-medium text-gray-900">Kurslar topilmadi</h3>
+          <h2 className="text-lg font-medium text-gray-900">Kurslar topilmadi</h2>
           <p className="text-gray-500 mt-1">Siz qidirgan nomda kurs afsuski mavjud emas.</p>
         </div>
       )}
