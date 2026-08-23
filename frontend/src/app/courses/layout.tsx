@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     title: "Barcha kurslar - Masofaviy Ta'lim Platformasi",
     description: "IT, Dasturlash va Sun'iy intellekt bo'yicha masofaviy kurslar ro'yxati.",
     url: "https://kurslarim.uz/courses",
+    siteName: "Kurslarim",
     images: [
       {
         url: '/og-image.png',
