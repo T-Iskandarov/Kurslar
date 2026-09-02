@@ -107,14 +107,31 @@ export default function TestPage() {
             </h3>
             
             <div className="space-y-3">
-              {q.options.map((opt: any, optIdx: number) => (
+              {q.options.map((opt: any, optIdx: number) => {
+                const qResult = result?.details?.find((d: any) => d.question_id === q.id);
+                let labelStyle = answers[q.id] === optIdx 
+                  ? "border-blue-500 bg-blue-50" 
+                  : "border-gray-100 hover:border-blue-200 hover:bg-gray-50";
+                let textStyle = answers[q.id] === optIdx ? "text-blue-900" : "text-gray-700";
+                
+                if (qResult) {
+                  const isSelected = qResult.selected_option === optIdx;
+                  const isCorrectOption = qResult.correct_option === optIdx;
+                  if (isCorrectOption) {
+                    labelStyle = "border-green-500 bg-green-50";
+                    textStyle = "text-green-800";
+                  } else if (isSelected && !qResult.is_correct) {
+                    labelStyle = "border-red-500 bg-red-50";
+                    textStyle = "text-red-800";
+                  } else {
+                    labelStyle = "border-gray-100 opacity-50";
+                  }
+                }
+                
+                return (
                 <label 
                   key={optIdx} 
-                  className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    answers[q.id] === optIdx 
-                      ? "border-blue-500 bg-blue-50" 
-                      : "border-gray-100 hover:border-blue-200 hover:bg-gray-50"
-                  } ${result ? "pointer-events-none opacity-80" : ""}`}
+                  className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${labelStyle} ${result ? "pointer-events-none" : ""}`}
                 >
                   <div className="flex items-center h-5">
                     <input
@@ -128,12 +145,13 @@ export default function TestPage() {
                     />
                   </div>
                   <div className="ml-3 text-sm">
-                    <span className={`font-medium ${answers[q.id] === optIdx ? "text-blue-900" : "text-gray-700"}`}>
+                    <span className={`font-medium ${textStyle}`}>
                       {opt.text}
                     </span>
                   </div>
                 </label>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}

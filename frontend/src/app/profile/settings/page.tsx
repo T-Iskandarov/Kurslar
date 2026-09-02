@@ -94,6 +94,7 @@ export default function ProfileSettingsPage() {
                 type="text"
                 id="full_name"
                 name="full_name"
+                maxLength={30}
                 value={formData.full_name}
                 onChange={handleChange}
                 required
