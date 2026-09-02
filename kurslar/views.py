@@ -154,14 +154,21 @@ class SubmitTestView(APIView):
                 question = questions.get(id=q_id)
                 options = question.options
                 is_correct = False
-                if isinstance(options, list) and 0 <= selected_option_idx < len(options):
-                    if options[selected_option_idx].get('is_correct'):
-                        is_correct = True
-                        correct_answers += 1
+                correct_option_idx = None
+                if isinstance(options, list):
+                    for i, opt in enumerate(options):
+                        if opt.get('is_correct'):
+                            correct_option_idx = i
+                            break
+                    if 0 <= selected_option_idx < len(options):
+                        if options[selected_option_idx].get('is_correct'):
+                            is_correct = True
+                            correct_answers += 1
                 details.append({
                     'question_id': q_id,
                     'question_text': question.question_text,
                     'selected_option': selected_option_idx,
+                    'correct_option': correct_option_idx,
                     'is_correct': is_correct
                 })
             except TestQuestion.DoesNotExist:
@@ -217,7 +224,8 @@ class SubmitTestView(APIView):
             'correct_answers': correct_answers,
             'passed': passed,
             'next_lesson_unlocked': next_lesson_unlocked,
-            'next_lesson_id': next_lesson_id
+            'next_lesson_id': next_lesson_id,
+            'details': details
         })
         return Response(result_serializer.data)
 
@@ -426,14 +434,21 @@ class SubmitFinalTestView(APIView):
                 question = questions.get(id=q_id)
                 options = question.options
                 is_correct = False
-                if isinstance(options, list) and 0 <= selected_option_idx < len(options):
-                    if options[selected_option_idx].get('is_correct'):
-                        is_correct = True
-                        correct_answers += 1
+                correct_option_idx = None
+                if isinstance(options, list):
+                    for i, opt in enumerate(options):
+                        if opt.get('is_correct'):
+                            correct_option_idx = i
+                            break
+                    if 0 <= selected_option_idx < len(options):
+                        if options[selected_option_idx].get('is_correct'):
+                            is_correct = True
+                            correct_answers += 1
                 details.append({
                     'question_id': q_id,
                     'question_text': question.question_text,
                     'selected_option': selected_option_idx,
+                    'correct_option': correct_option_idx,
                     'is_correct': is_correct
                 })
             except FinalTestQuestion.DoesNotExist:
@@ -464,7 +479,8 @@ class SubmitFinalTestView(APIView):
             'total_questions': total_questions,
             'correct_answers': correct_answers,
             'passed': passed,
-            'certificate_id': certificate_id
+            'certificate_id': certificate_id,
+            'details': details
         })
 
 class VerifyCertificateView(APIView):

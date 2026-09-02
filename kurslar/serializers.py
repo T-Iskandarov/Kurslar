@@ -219,8 +219,9 @@ class TestResultSerializer(serializers.Serializer):
     total_questions = serializers.IntegerField()
     correct_answers = serializers.IntegerField()
     passed = serializers.BooleanField()
-    next_lesson_unlocked = serializers.BooleanField()
+    next_lesson_unlocked = serializers.BooleanField(required=False)
     next_lesson_id = serializers.IntegerField(required=False, allow_null=True)
+    details = serializers.ListField(child=serializers.DictField(), required=False)
 
 class AdminCourseSerializer(serializers.ModelSerializer):
     lessons_count = serializers.SerializerMethodField()
