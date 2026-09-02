@@ -96,7 +96,7 @@ export default function RegisterPage() {
                 type="text"
                 name="full_name"
                 required
-                maxLength={30}
+                maxLength={150}
                 placeholder="To'liq ismingiz"
                 className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                 value={formData.full_name}
