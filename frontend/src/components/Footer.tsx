@@ -1,6 +1,6 @@
 "use client";
 
-import { Phone, Camera, Send, Heart, User, BookOpen, Award } from "lucide-react";
+import { Phone, Camera, Send, Heart, User, BookOpen, Award, Globe } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -41,6 +41,12 @@ export default function Footer() {
                 <a href="tel:+998973173497" className="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors">
                   <Phone size={18} />
                   <span>+998 97 317 34 97</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.t-iskandarov.uz/" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors">
+                  <Globe size={18} />
+                  <span>t-iskandarov.uz</span>
                 </a>
               </li>
               <li>
