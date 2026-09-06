@@ -5,12 +5,12 @@ import CourseCard from "@/components/CourseCard";
 import { Search, LayoutGrid, Monitor, Palette, Code, BrainCircuit, Cpu } from "lucide-react";
 
 const categories = [
-  { id: "all", label: "Barcha kurslar", icon: LayoutGrid },
-  { id: "kompyuter_asoslari", label: "Kompyuter asoslari", icon: Monitor },
-  { id: "grafik_dizayn", label: "Grafik dizayn", icon: Palette },
-  { id: "dasturlash", label: "Dasturlash", icon: Code },
-  { id: "suniy_intellekt", label: "Sun'iy intellekt", icon: BrainCircuit },
-  { id: "robototexnika", label: "Robototexnika", icon: Cpu },
+  { id: "all", label: "Barcha kurslar", icon: LayoutGrid, color: "text-blue-600", bg: "bg-blue-100" },
+  { id: "kompyuter_asoslari", label: "Kompyuter asoslari", icon: Monitor, color: "text-emerald-600", bg: "bg-emerald-100" },
+  { id: "grafik_dizayn", label: "Grafik dizayn", icon: Palette, color: "text-purple-600", bg: "bg-purple-100" },
+  { id: "dasturlash", label: "Dasturlash", icon: Code, color: "text-indigo-600", bg: "bg-indigo-100" },
+  { id: "suniy_intellekt", label: "Sun'iy intellekt", icon: BrainCircuit, color: "text-rose-600", bg: "bg-rose-100" },
+  { id: "robototexnika", label: "Robototexnika", icon: Cpu, color: "text-amber-600", bg: "bg-amber-100" },
 ];
 
 export default function CourseListClient({ initialCourses }: { initialCourses: any[] }) {
@@ -64,7 +64,7 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
       </div>
 
       {/* Categories Tabs */}
-      <div className="flex justify-center md:justify-start w-full mb-8">
+      <div className="flex justify-center w-full mb-8">
         <div className="inline-flex overflow-x-auto p-1.5 bg-white border border-gray-100 shadow-sm rounded-2xl gap-1 hide-scrollbar max-w-full">
           {categories.map((cat) => {
             const Icon = cat.icon;
@@ -75,13 +75,15 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                className={`flex items-center gap-2.5 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? "bg-blue-50 text-blue-600 shadow-sm"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                    ? "bg-blue-50 text-blue-700 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >
-                <Icon size={16} />
+                <div className={`p-1.5 rounded-full ${cat.bg}`}>
+                  <Icon size={16} className={cat.color} />
+                </div>
                 {cat.label}
                 <span className={`ml-1 px-1.5 py-0.5 rounded-md text-xs font-semibold ${
                   isActive 
