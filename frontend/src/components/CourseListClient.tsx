@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 import CourseCard from "@/components/CourseCard";
-import { Search, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
-
-type SortOption = "date" | "lessons";
+import { Search } from "lucide-react";
 
 const categories = [
   { id: "all", label: "Barcha kurslar" },
@@ -17,28 +15,7 @@ const categories = [
 
 export default function CourseListClient({ initialCourses }: { initialCourses: any[] }) {
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("date");
   const [activeCategory, setActiveCategory] = useState("all");
-  
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const sortOptions: { value: SortOption; label: string }[] = [
-    { value: "date", label: "Ochilgan sanasiga qarab" },
-    { value: "lessons", label: "Darslar soniga qarab" }
-  ];
-
-  const currentSortLabel = sortOptions.find(o => o.value === sortBy)?.label;
 
   const filteredAndSortedCourses = useMemo(() => {
     let result = initialCourses.filter((course: any) => 
@@ -48,16 +25,11 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
     );
 
     result.sort((a, b) => {
-      if (sortBy === "date") {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      } else if (sortBy === "lessons") {
-        return b.lessons_count - a.lessons_count;
-      }
-      return 0;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
     return result;
-  }, [initialCourses, search, sortBy, activeCategory]);
+  }, [initialCourses, search, activeCategory]);
 
   return (
     <>
@@ -68,41 +40,6 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-          {/* Custom Sort Dropdown */}
-          <div className="relative w-full sm:w-auto" ref={dropdownRef}>
-            <button
-              type="button"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center justify-between w-full sm:w-64 bg-white px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-            >
-              <div className="flex items-center text-gray-700">
-                <SlidersHorizontal size={18} className="mr-2.5 text-gray-400" />
-                <span className="text-sm font-medium">{currentSortLabel}</span>
-              </div>
-              <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isDropdownOpen && (
-              <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 opacity-100 translate-y-0 transform origin-top transition-all">
-                {sortOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      setSortBy(option.value);
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-blue-50 hover:text-blue-700 transition-colors"
-                  >
-                    <span className={sortBy === option.value ? 'font-semibold text-blue-700' : 'text-gray-700'}>
-                      {option.label}
-                    </span>
-                    {sortBy === option.value && <Check size={16} className="text-blue-600" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
           <div className="relative w-full sm:w-64 lg:w-80">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search size={18} className="text-gray-400" />
