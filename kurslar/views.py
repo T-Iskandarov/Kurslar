@@ -69,13 +69,13 @@ class ProfileView(RetrieveUpdateAPIView):
 
 class CourseListView(ListAPIView):
     permission_classes = [AllowAny]
-    queryset = Course.objects.all()
+    queryset = Course.objects.filter(is_active=True)
     serializer_class = CourseListSerializer
 
 
 class CourseDetailView(RetrieveAPIView):
     permission_classes = [AllowAny]
-    queryset = Course.objects.all()
+    queryset = Course.objects.filter(is_active=True)
     serializer_class = CourseDetailSerializer
 
     def get(self, request, *args, **kwargs):
