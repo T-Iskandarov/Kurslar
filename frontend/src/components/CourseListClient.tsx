@@ -4,7 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import CourseCard from "@/components/CourseCard";
 import { Search, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
 
-type SortOption = "alphabetical" | "date" | "lessons";
+type SortOption = "date" | "lessons";
 
 const categories = [
   { id: "all", label: "Barcha kurslar" },
@@ -17,7 +17,7 @@ const categories = [
 
 export default function CourseListClient({ initialCourses }: { initialCourses: any[] }) {
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("alphabetical");
+  const [sortBy, setSortBy] = useState<SortOption>("date");
   const [activeCategory, setActiveCategory] = useState("all");
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -34,7 +34,6 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
   }, []);
 
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: "alphabetical", label: "Alifbo bo'yicha" },
     { value: "date", label: "Ochilgan sanasiga qarab" },
     { value: "lessons", label: "Darslar soniga qarab" }
   ];
@@ -49,9 +48,7 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
     );
 
     result.sort((a, b) => {
-      if (sortBy === "alphabetical") {
-        return a.title.localeCompare(b.title);
-      } else if (sortBy === "date") {
+      if (sortBy === "date") {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       } else if (sortBy === "lessons") {
         return b.lessons_count - a.lessons_count;
