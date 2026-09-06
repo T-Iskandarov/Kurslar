@@ -29,6 +29,32 @@ export default function AdminCoursesPage() {
     fetchCourses();
   }, []);
 
+  const handleToggleActive = async (id: number, currentStatus: boolean) => {
+    try {
+      // Optimistic update
+      setCourses(prev => prev.map(c => c.id === id ? { ...c, is_active: !currentStatus } : c));
+      
+      const formData = new FormData();
+      formData.append("is_active", String(!currentStatus));
+      
+      const res = await apiFetch(`/admin/courses/${id}/`, {
+        method: "PATCH",
+        body: formData,
+      });
+      
+      if (!res.ok) {
+        // Revert on failure
+        setCourses(prev => prev.map(c => c.id === id ? { ...c, is_active: currentStatus } : c));
+        alert("Holatni o'zgartirishda xatolik yuz berdi");
+      }
+    } catch (err) {
+      console.error(err);
+      // Revert on error
+      setCourses(prev => prev.map(c => c.id === id ? { ...c, is_active: currentStatus } : c));
+      alert("Tarmoq xatosi");
+    }
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm("Haqiqatan ham bu kursni o'chirmoqchimisiz?")) return;
     try {
@@ -83,6 +109,9 @@ export default function AdminCoursesPage() {
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Yaratilgan sana
                 </th>
+                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Holati (Ko'rinishi)
+                </th>
                 <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Amallar
                 </th>
@@ -112,6 +141,21 @@ export default function AdminCoursesPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                     {format(new Date(course.created_at), "d MMM, yyyy", { locale: uz })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <button
+                      onClick={() => handleToggleActive(course.id, course.is_active)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                        course.is_active ? 'bg-blue-600' : 'bg-gray-200'
+                      }`}
+                      title={course.is_active ? "Saytda ko'rsatilmoqda" : "Saytda yashirilgan"}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          course.is_active ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-3">
