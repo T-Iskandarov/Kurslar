@@ -178,7 +178,7 @@ export default function AdminCourseEditPage() {
                     Rasmni o'zgartirish
                   </label>
                   <p className="text-xs text-gray-500">
-                    Tavsiya etilgan o'lcham: 1280x720 (16:9).<br />
+                    Tavsiya etilgan o'lcham: 1536 × 1024 (3:2).<br />
                     Maksimal hajm: 5MB. JPG yoki PNG.
                   </p>
                 </div>
