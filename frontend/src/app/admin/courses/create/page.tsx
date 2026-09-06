@@ -11,6 +11,7 @@ export default function AdminCourseCreatePage() {
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("boshqa");
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function AdminCourseCreatePage() {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
+    formData.append("category", category);
     if (thumbnail) {
       formData.append("thumbnail", thumbnail);
     }
@@ -91,6 +93,25 @@ export default function AdminCourseCreatePage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all"
                 placeholder="Masalan: Front-End dasturlash kursi"
               />
+            </div>
+
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                Kurs bo'limi (Kategoriya)
+              </label>
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all mb-6 bg-white"
+              >
+                <option value="boshqa">Boshqa / Umumiy</option>
+                <option value="kompyuter_asoslari">Kompyuter asoslari</option>
+                <option value="grafik_dizayn">Grafik dizayn</option>
+                <option value="dasturlash">Dasturlash</option>
+                <option value="suniy_intellekt">Sun'iy intellekt</option>
+                <option value="robototexnika">Robototexnika</option>
+              </select>
             </div>
 
             <div>
