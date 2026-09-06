@@ -26,8 +26,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
 
 class Course(models.Model):
+    CATEGORY_CHOICES = [
+        ('kompyuter_asoslari', 'Kompyuter asoslari'),
+        ('grafik_dizayn', 'Grafik dizayn'),
+        ('dasturlash', 'Dasturlash'),
+        ('suniy_intellekt', "Sun'iy intellekt"),
+        ('robototexnika', 'Robototexnika'),
+        ('boshqa', 'Boshqa'),
+    ]
     title = models.CharField(max_length=255)
     description = models.TextField()
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='boshqa')
     thumbnail = models.ImageField(upload_to='courses/thumbnails/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

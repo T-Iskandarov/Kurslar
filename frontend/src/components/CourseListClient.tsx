@@ -6,9 +6,20 @@ import { Search, SlidersHorizontal, ChevronDown, Check } from "lucide-react";
 
 type SortOption = "alphabetical" | "date" | "lessons";
 
+const categories = [
+  { id: "all", label: "Barcha kurslar" },
+  { id: "kompyuter_asoslari", label: "Kompyuter asoslari" },
+  { id: "grafik_dizayn", label: "Grafik dizayn" },
+  { id: "dasturlash", label: "Dasturlash" },
+  { id: "suniy_intellekt", label: "Sun'iy intellekt" },
+  { id: "robototexnika", label: "Robototexnika" },
+];
+
 export default function CourseListClient({ initialCourses }: { initialCourses: any[] }) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("alphabetical");
+  const [activeCategory, setActiveCategory] = useState("all");
+  
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -32,8 +43,9 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
 
   const filteredAndSortedCourses = useMemo(() => {
     let result = initialCourses.filter((course: any) => 
-      course.title.toLowerCase().includes(search.toLowerCase()) || 
-      course.description.toLowerCase().includes(search.toLowerCase())
+      (course.title.toLowerCase().includes(search.toLowerCase()) || 
+       course.description.toLowerCase().includes(search.toLowerCase())) &&
+      (activeCategory === "all" || course.category === activeCategory)
     );
 
     result.sort((a, b) => {
@@ -48,7 +60,7 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
     });
 
     return result;
-  }, [initialCourses, search, sortBy]);
+  }, [initialCourses, search, sortBy, activeCategory]);
 
   return (
     <>
@@ -109,6 +121,23 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
         </div>
       </div>
 
+      {/* Categories Tabs */}
+      <div className="flex overflow-x-auto pb-4 mb-6 hide-scrollbar gap-2">
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
+            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeCategory === cat.id
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
       {filteredAndSortedCourses.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAndSortedCourses.map((course: any) => (
@@ -121,7 +150,7 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
             <Search size={24} />
           </div>
           <h2 className="text-lg font-medium text-gray-900">Kurslar topilmadi</h2>
-          <p className="text-gray-500 mt-1">Siz qidirgan nomda kurs afsuski mavjud emas.</p>
+          <p className="text-gray-500 mt-1">Ushbu bo'limda yoki siz qidirgan nomda kurs afsuski mavjud emas.</p>
         </div>
       )}
     </>
