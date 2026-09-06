@@ -64,34 +64,36 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
       </div>
 
       {/* Categories Tabs */}
-      <div className="flex overflow-x-auto pb-4 mb-6 hide-scrollbar gap-3">
-        {categories.map((cat) => {
-          const Icon = cat.icon;
-          const count = categoryCounts[cat.id] || 0;
-          const isActive = activeCategory === cat.id;
-          
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"
-              }`}
-            >
-              <Icon size={16} className={isActive ? "text-white" : "text-gray-500"} />
-              {cat.label}
-              <span className={`ml-1.5 px-2 py-0.5 rounded-md text-xs font-semibold ${
-                isActive 
-                  ? "bg-white/20 text-white" 
-                  : "bg-gray-100 text-gray-500"
-              }`}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
+      <div className="flex justify-center md:justify-start w-full mb-8">
+        <div className="inline-flex overflow-x-auto p-1.5 bg-white border border-gray-100 shadow-sm rounded-2xl gap-1 hide-scrollbar max-w-full">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            const count = categoryCounts[cat.id] || 0;
+            const isActive = activeCategory === cat.id;
+            
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-blue-50 text-blue-600 shadow-sm"
+                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                <Icon size={16} />
+                {cat.label}
+                <span className={`ml-1 px-1.5 py-0.5 rounded-md text-xs font-semibold ${
+                  isActive 
+                    ? "bg-blue-100 text-blue-700" 
+                    : "bg-gray-100 text-gray-500"
+                }`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {filteredAndSortedCourses.length > 0 ? (
