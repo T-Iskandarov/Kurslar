@@ -2,20 +2,28 @@
 
 import { useState, useMemo } from "react";
 import CourseCard from "@/components/CourseCard";
-import { Search } from "lucide-react";
+import { Search, LayoutGrid, Monitor, Palette, Code, BrainCircuit, Cpu } from "lucide-react";
 
 const categories = [
-  { id: "all", label: "Barcha kurslar" },
-  { id: "kompyuter_asoslari", label: "Kompyuter asoslari" },
-  { id: "grafik_dizayn", label: "Grafik dizayn" },
-  { id: "dasturlash", label: "Dasturlash" },
-  { id: "suniy_intellekt", label: "Sun'iy intellekt" },
-  { id: "robototexnika", label: "Robototexnika" },
+  { id: "all", label: "Barcha kurslar", icon: LayoutGrid },
+  { id: "kompyuter_asoslari", label: "Kompyuter asoslari", icon: Monitor },
+  { id: "grafik_dizayn", label: "Grafik dizayn", icon: Palette },
+  { id: "dasturlash", label: "Dasturlash", icon: Code },
+  { id: "suniy_intellekt", label: "Sun'iy intellekt", icon: BrainCircuit },
+  { id: "robototexnika", label: "Robototexnika", icon: Cpu },
 ];
 
 export default function CourseListClient({ initialCourses }: { initialCourses: any[] }) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: initialCourses.length };
+    categories.slice(1).forEach(cat => {
+      counts[cat.id] = initialCourses.filter(c => c.category === cat.id).length;
+    });
+    return counts;
+  }, [initialCourses]);
 
   const filteredAndSortedCourses = useMemo(() => {
     let result = initialCourses.filter((course: any) => 
@@ -56,20 +64,34 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
       </div>
 
       {/* Categories Tabs */}
-      <div className="flex overflow-x-auto pb-4 mb-6 hide-scrollbar gap-2">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeCategory === cat.id
-                ? "bg-blue-600 text-white shadow-md"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
+      <div className="flex overflow-x-auto pb-4 mb-6 hide-scrollbar gap-3">
+        {categories.map((cat) => {
+          const Icon = cat.icon;
+          const count = categoryCounts[cat.id] || 0;
+          const isActive = activeCategory === cat.id;
+          
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`flex items-center gap-2 whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                isActive
+                  ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                  : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+              }`}
+            >
+              <Icon size={16} className={isActive ? "text-white" : "text-gray-500"} />
+              {cat.label}
+              <span className={`ml-1.5 px-2 py-0.5 rounded-md text-xs font-semibold ${
+                isActive 
+                  ? "bg-white/20 text-white" 
+                  : "bg-gray-100 text-gray-500"
+              }`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {filteredAndSortedCourses.length > 0 ? (
