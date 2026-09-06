@@ -63,7 +63,7 @@ export default function LessonDetailPage() {
         <div className="relative w-full aspect-video bg-gray-900">
           {lesson.youtube_video_id ? (
             <iframe
-              src={`https://www.youtube.com/embed/${getYoutubeId(lesson.youtube_video_id)}`}
+              src={`https://www.youtube.com/embed/${getYoutubeId(lesson.youtube_video_id)}?vq=hd1080&rel=0`}
               title={lesson.title}
               className="absolute inset-0 w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
