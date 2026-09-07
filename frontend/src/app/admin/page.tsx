@@ -190,6 +190,9 @@ export default function AdminDashboardPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    T/R
+                  </th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     O'quvchi
                   </th>
                   <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -210,8 +213,11 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {usersList.map((u: any) => (
+                {usersList.map((u: any, index: number) => (
                   <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {(usersPage - 1) * 20 + index + 1}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500">
@@ -268,7 +274,7 @@ export default function AdminDashboardPage() {
               </div>
             )}
             
-            {usersTotalPages > 1 && (
+            {usersList.length > 0 && (
               <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
                 <span className="text-sm text-gray-500">
                   Jami {usersTotalPages} ta sahifadan {usersPage}-sahifa
