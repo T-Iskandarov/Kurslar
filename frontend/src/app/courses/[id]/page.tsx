@@ -115,16 +115,40 @@ export default function CourseDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {course.author_name && (
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm text-gray-500 font-medium mb-1">Kurs muallifi</h3>
-                  <p className="text-lg font-bold text-gray-900">{course.author_name}</p>
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-[2px] shadow-lg shadow-blue-100/50">
+                <div className="bg-white rounded-[14px] p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                  {/* Decorative background element */}
+                  <div className="absolute top-0 right-0 -mt-16 -mr-16 w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full blur-2xl opacity-50 pointer-events-none"></div>
+                  
+                  <div className="flex items-center gap-5 w-full sm:w-auto relative z-10">
+                    <div className="w-16 h-16 flex-shrink-0 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md shadow-blue-200/50 transform -rotate-3">
+                      {course.author_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-[11px] font-bold uppercase tracking-wider mb-1.5">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                        Maxsus Kurs Muallifi
+                      </div>
+                      <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+                        {course.author_name}
+                      </h3>
+                    </div>
+                  </div>
+                  
+                  {course.author_link && (
+                    <a 
+                      href={course.author_link} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300 hover:from-blue-700 hover:to-indigo-700 transition-all text-center whitespace-nowrap transform hover:-translate-y-0.5 active:translate-y-0 relative z-10"
+                    >
+                      Muallif bilan bog'lanish
+                    </a>
+                  )}
                 </div>
-                {course.author_link && (
-                  <a href={course.author_link} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors whitespace-nowrap">
-                    Muallif bilan bog'lanish
-                  </a>
-                )}
               </div>
             )}
             
