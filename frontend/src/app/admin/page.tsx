@@ -16,6 +16,8 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [coursesStats, setCoursesStats] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersTotalPages, setUsersTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"users" | "active_users" | "courses" | "lessons">("users");
 
@@ -208,9 +210,7 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {usersList
-                  .filter((u: any) => activeTab === "active_users" ? u.is_active : true)
-                  .map((u: any) => (
+                {usersList.map((u: any) => (
                   <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -262,11 +262,36 @@ export default function AdminDashboardPage() {
               </tbody>
             </table>
             
-            {usersList.filter((u: any) => activeTab === "active_users" ? u.is_active : true).length === 0 && (
+            {usersList.length === 0 && (
               <div className="text-center py-12 text-gray-500">
                 Ma'lumot topilmadi
               </div>
             )}
+            
+            {usersTotalPages > 1 && (
+              <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <span className="text-sm text-gray-500">
+                  Jami {usersTotalPages} ta sahifadan {usersPage}-sahifa
+                </span>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setUsersPage(p => Math.max(1, p - 1))}
+                    disabled={usersPage === 1}
+                    className="px-3 py-1 border border-gray-200 rounded text-sm text-gray-600 disabled:opacity-50 hover:bg-gray-50"
+                  >
+                    Oldingi
+                  </button>
+                  <button 
+                    onClick={() => setUsersPage(p => Math.min(usersTotalPages, p + 1))}
+                    disabled={usersPage === usersTotalPages}
+                    className="px-3 py-1 border border-gray-200 rounded text-sm text-gray-600 disabled:opacity-50 hover:bg-gray-50"
+                  >
+                    Keyingi
+                  </button>
+                </div>
+              </div>
+            )}
+            
           </div>
         </div>
       )}
