@@ -30,19 +30,9 @@ export default function AdminDashboardPage() {
 
     const fetchAdminData = async () => {
       try {
-        const [statsRes, usersRes, coursesStatsRes] = await Promise.all([
-          apiFetch("/admin/dashboard/"),
-          apiFetch("/admin/users/"),
-          apiFetch("/admin/statistics/courses/")
-        ]);
+        const [statsRes, coursesStatsRes] = await Promise.all([apiFetch("/admin/dashboard/"), apiFetch("/admin/statistics/courses/")]);
 
-        if (statsRes.ok && usersRes.ok && coursesStatsRes.ok) {
-          setStats(await statsRes.json());
-          const usersData = await usersRes.json();
-          setUsersList(Array.isArray(usersData) ? usersData : (usersData.results || []));
-          const coursesData = await coursesStatsRes.json();
-          setCoursesStats(Array.isArray(coursesData) ? coursesData : (coursesData.results || []));
-        }
+        if (statsRes.ok && coursesStatsRes.ok) { setStats(await statsRes.json()); const coursesData = await coursesStatsRes.json(); setCoursesStats(Array.isArray(coursesData) ? coursesData : (coursesData.results || [])); }
       } catch (err) {
         console.error(err);
       } finally {
@@ -246,7 +236,37 @@ export default function AdminDashboardPage() {
                         <div className="flex flex-col gap-1">
                           {u.courses_progress.map((prog: string, idx: number) => {
                             const isCompleted = prog.includes("Tamomlagan");
-                            return (
+                          
+  useEffect(() => {
+    if (!user || !user.is_staff) return;
+    
+    const fetchUsers = async () => {
+      try {
+        let url = `/admin/users/?page=${usersPage}`;
+        if (activeTab === "active_users") {
+          url += "&is_active=true";
+        }
+        
+        const res = await apiFetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setUsersList(data);
+            setUsersTotalPages(1);
+          } else {
+            setUsersList(data.results || []);
+            setUsersTotalPages(Math.ceil((data.count || 1) / 20));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    
+    fetchUsers();
+  }, [usersPage, activeTab, user]);
+
+  return (
                               <span key={idx} className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isCompleted ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
                                 {prog}
                               </span>
