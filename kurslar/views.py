@@ -342,8 +342,14 @@ class AdminQuestionDetailView(RetrieveUpdateDestroyAPIView):
 
 class AdminUserListView(ListAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
-    queryset = CustomUser.objects.all()
     serializer_class = AdminUserSerializer
+
+    def get_queryset(self):
+        queryset = CustomUser.objects.all().order_by('-date_joined')
+        is_active = self.request.query_params.get('is_active', None)
+        if is_active == 'true':
+            queryset = queryset.filter(is_active=True)
+        return queryset
 
 
 class AdminResourceCreateView(CreateAPIView):
