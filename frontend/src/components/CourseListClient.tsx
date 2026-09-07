@@ -39,11 +39,20 @@ export default function CourseListClient({ initialCourses }: { initialCourses: a
     return result;
   }, [initialCourses, search, activeCategory]);
 
+
+  const activeCatObj = categories.find(c => c.id === activeCategory) || categories[0];
+  
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Barcha <span className="text-blue-600">kurslar</span></h1>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+            {activeCategory === "all" ? (
+              <>Barcha <span className="text-blue-600">kurslar</span></>
+            ) : (
+              <>{activeCatObj.label} <span className={activeCatObj.color}>kurslari</span></>
+            )}
+          </h1>
           <p className="text-gray-500 mt-1">O'zingizga qiziq bo'lgan sohani tanlang va o'rganishni boshlang</p>
         </div>
         
