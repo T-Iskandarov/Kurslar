@@ -114,6 +114,20 @@ export default function CourseDetailPage() {
           
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {course.author_name && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm text-gray-500 font-medium mb-1">Kurs muallifi</h3>
+                  <p className="text-lg font-bold text-gray-900">{course.author_name}</p>
+                </div>
+                {course.author_link && (
+                  <a href={course.author_link} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-medium hover:bg-blue-100 transition-colors whitespace-nowrap">
+                    Muallif bilan bog'lanish
+                  </a>
+                )}
+              </div>
+            )}
+            
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Kurs haqida</h2>
               <div className="prose prose-blue max-w-none text-gray-600 whitespace-pre-wrap">

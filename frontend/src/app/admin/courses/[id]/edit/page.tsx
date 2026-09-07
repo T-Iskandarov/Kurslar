@@ -17,6 +17,9 @@ export default function AdminCourseEditPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("boshqa");
+  const [isOwnCourse, setIsOwnCourse] = useState(true);
+  const [authorName, setAuthorName] = useState("");
+  const [authorLink, setAuthorLink] = useState("");
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   
@@ -31,6 +34,15 @@ export default function AdminCourseEditPage() {
           setTitle(data.title || "");
           setDescription(data.description || "");
           setCategory(data.category || "boshqa");
+          if (data.author_name) {
+            setIsOwnCourse(false);
+            setAuthorName(data.author_name);
+            setAuthorLink(data.author_link || "");
+          } else {
+            setIsOwnCourse(true);
+            setAuthorName("");
+            setAuthorLink("");
+          }
           if (data.thumbnail) {
             setThumbnailPreview(data.thumbnail);
           }
@@ -68,6 +80,14 @@ export default function AdminCourseEditPage() {
     formData.append("title", title);
     formData.append("description", description);
     formData.append("category", category);
+    
+    if (!isOwnCourse) {
+      formData.append("author_name", authorName);
+      formData.append("author_link", authorLink);
+    } else {
+      formData.append("author_name", "");
+      formData.append("author_link", "");
+    }
     
     // Only append thumbnail if a NEW file was selected.
     // If not selected, we don't send it, so backend keeps the existing one.
@@ -156,6 +176,53 @@ export default function AdminCourseEditPage() {
                 <option value="suniy_intellekt">Sun'iy intellekt</option>
                 <option value="robototexnika">Robototexnika</option>
               </select>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <div className="flex items-center mb-4">
+                <input
+                  type="checkbox"
+                  id="isOwnCourse"
+                  checked={isOwnCourse}
+                  onChange={(e) => setIsOwnCourse(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="isOwnCourse" className="ml-2 text-sm font-medium text-gray-900">
+                  Muallif o'zim (Tursunpo'lat Iskandarov)
+                </label>
+              </div>
+
+              {!isOwnCourse && (
+                <div className="space-y-4 pt-4 border-t border-gray-200 mt-4">
+                  <div>
+                    <label htmlFor="authorName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Muallif ism-familiyasi
+                    </label>
+                    <input
+                      type="text"
+                      id="authorName"
+                      value={authorName}
+                      onChange={(e) => setAuthorName(e.target.value)}
+                      required={!isOwnCourse}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all"
+                      placeholder="Masalan: Alisher Navoiy"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="authorLink" className="block text-sm font-medium text-gray-700 mb-1">
+                      Muallifga havola (Link)
+                    </label>
+                    <input
+                      type="url"
+                      id="authorLink"
+                      value={authorLink}
+                      onChange={(e) => setAuthorLink(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition-all"
+                      placeholder="Masalan: https://t.me/username"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
