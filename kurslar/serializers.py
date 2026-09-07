@@ -36,7 +36,7 @@ class CourseListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'title', 'description', 'category', 'thumbnail', 'created_at', 'lessons_count', 'students_count']
+        fields = ['id', 'title', 'description', 'category', 'thumbnail', 'created_at', 'lessons_count', 'students_count', 'author_name', 'author_link']
 
     def get_lessons_count(self, obj):
         return obj.lessons.count()
@@ -66,7 +66,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ['id', 'title', 'description', 'thumbnail', 'created_at', 'modules', 'students_count', 'user_progress_percent', 'has_certificate', 'certificate_id']
+        fields = ['id', 'title', 'description', 'thumbnail', 'created_at', 'modules', 'students_count', 'user_progress_percent', 'has_certificate', 'certificate_id', 'author_name', 'author_link']
 
     def get_has_certificate(self, obj):
         request = self.context.get('request')

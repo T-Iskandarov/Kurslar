@@ -39,6 +39,8 @@ class Course(models.Model):
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='boshqa')
     thumbnail = models.ImageField(upload_to='courses/thumbnails/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    author_name = models.CharField(max_length=255, blank=True, null=True)
+    author_link = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
