@@ -129,7 +129,7 @@ export default function AdminDashboardPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Faol o'quvchilar</p>
               <div className="text-3xl font-bold mt-2 text-gray-900">
-                {stats ? stats.active_users : 0}
+                {stats ? stats.total_active_users : 0}
               </div>
             </div>
           </div>
