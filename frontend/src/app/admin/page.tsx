@@ -4,14 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { apiFetch } from "@/lib/api";
-import { BookOpen, Users, Activity, PlayCircle, User, Phone, ChevronRight, FileCheck, XCircle, CheckCircle2, Calendar } from "lucide-react";
-import Link from "next/link";
 import { format, differenceInYears } from "date-fns";
 import { uz } from "date-fns/locale";
+import Link from "next/link";
+import { Users, BookOpen, PlayCircle, Activity, ChevronRight, User, Phone, Calendar, FileCheck } from "lucide-react";
 
 export default function AdminDashboardPage() {
-  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   
   const [stats, setStats] = useState<any>(null);
   const [coursesStats, setCoursesStats] = useState<any[]>([]);
@@ -30,16 +30,13 @@ export default function AdminDashboardPage() {
 
     const fetchAdminData = async () => {
       try {
-        const [statsRes, usersRes, coursesStatsRes] = await Promise.all([
+        const [statsRes, coursesStatsRes] = await Promise.all([
           apiFetch("/admin/dashboard/"),
-          apiFetch("/admin/users/"),
           apiFetch("/admin/statistics/courses/")
         ]);
 
-        if (statsRes.ok && usersRes.ok && coursesStatsRes.ok) {
+        if (statsRes.ok && coursesStatsRes.ok) {
           setStats(await statsRes.json());
-          const usersData = await usersRes.json();
-          setUsersList(Array.isArray(usersData) ? usersData : (usersData.results || []));
           const coursesData = await coursesStatsRes.json();
           setCoursesStats(Array.isArray(coursesData) ? coursesData : (coursesData.results || []));
         }
@@ -53,74 +50,133 @@ export default function AdminDashboardPage() {
     fetchAdminData();
   }, [user, authLoading, router]);
 
+  // Fetch users whenever page or activeTab changes
+  useEffect(() => {
+    if (authLoading || !user || !user.is_staff) return;
+    
+    const fetchUsers = async () => {
+      try {
+        let url = `/admin/users/?page=${usersPage}`;
+        if (activeTab === "active_users") {
+          url += "&is_active=true";
+        }
+        
+        const res = await apiFetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setUsersList(data);
+            setUsersTotalPages(1);
+          } else {
+            setUsersList(data.results || []);
+            setUsersTotalPages(Math.ceil((data.count || 1) / 20));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    
+    // Only fetch users if activeTab is one of the user tabs
+    if (activeTab === "users" || activeTab === "active_users") {
+      fetchUsers();
+    }
+  }, [usersPage, activeTab, user, authLoading]);
+
   if (authLoading || loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-  const StatCard = ({ title, value, icon: Icon, colorClass, tabKey }: any) => (
-    <div 
-      onClick={() => setActiveTab(tabKey)}
-      className={`rounded-2xl shadow-sm border p-6 flex items-center gap-4 cursor-pointer transition-all ${
-        activeTab === tabKey ? "bg-blue-50 border-blue-200 ring-2 ring-blue-500" : "bg-white border-gray-100 hover:bg-gray-50"
-      }`}
-    >
-      <div className={`p-4 rounded-xl ${colorClass}`}>
-        <Icon size={24} />
-      </div>
-      <div>
-        <p className="text-sm font-medium text-gray-500">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-      </div>
-    </div>
-  );
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Statistika va Boshqaruv</h1>
-        <p className="text-gray-500 mt-2">Tizimning umumiy holati va foydalanuvchilar statistikasi.</p>
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Statistika va Boshqaruv</h1>
+        <p className="mt-2 text-gray-500">Tizimning umumiy holati va foydalanuvchilar statistikasi.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard 
-          title="Umumiy o'quvchilar" 
-          value={stats?.total_users || 0} 
-          icon={Users} 
-          colorClass="bg-blue-100 text-blue-600"
-          tabKey="users"
-        />
-        <StatCard 
-          title="Faol o'quvchilar" 
-          value={stats?.total_active_users || 0} 
-          icon={Activity} 
-          colorClass="bg-green-100 text-green-600"
-          tabKey="active_users"
-        />
-        <StatCard 
-          title="Kurslar soni" 
-          value={stats?.total_courses || 0} 
-          icon={BookOpen} 
-          colorClass="bg-purple-100 text-purple-600"
-          tabKey="courses"
-        />
-        <StatCard 
-          title="Darslar soni" 
-          value={stats?.total_lessons || 0} 
-          icon={PlayCircle} 
-          colorClass="bg-orange-100 text-orange-600"
-          tabKey="lessons"
-        />
-      </div>
-
-      {(activeTab === "courses" || activeTab === "lessons") && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-          <div className="p-6 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900">Kurslar bo'yicha statistika</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Umumiy o'quvchilar */}
+        <div 
+          onClick={() => { setActiveTab("users"); setUsersPage(1); }}
+          className={`bg-white rounded-2xl p-6 border ${activeTab === 'users' ? 'border-blue-500 ring-4 ring-blue-50' : 'border-gray-100'} shadow-sm cursor-pointer hover:shadow-md transition-all`}
+        >
+          <div className="flex items-center">
+            <div className="p-3 bg-blue-50 rounded-xl">
+              <Users className="h-6 w-6 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Umumiy o'quvchilar</p>
+              <div className="text-3xl font-bold mt-2 text-gray-900">
+                {stats ? stats.total_users : 0}
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Faol o'quvchilar */}
+        <div 
+          onClick={() => { setActiveTab("active_users"); setUsersPage(1); }}
+          className={`bg-white rounded-2xl p-6 border ${activeTab === 'active_users' ? 'border-green-500 ring-4 ring-green-50' : 'border-gray-100'} shadow-sm cursor-pointer hover:shadow-md transition-all`}
+        >
+          <div className="flex items-center">
+            <div className="p-3 bg-green-50 rounded-xl">
+              <Activity className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Faol o'quvchilar</p>
+              <div className="text-3xl font-bold mt-2 text-gray-900">
+                {stats ? stats.active_users : 0}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Kurslar soni */}
+        <div 
+          onClick={() => setActiveTab("courses")}
+          className={`bg-white rounded-2xl p-6 border ${activeTab === 'courses' ? 'border-purple-500 ring-4 ring-purple-50' : 'border-gray-100'} shadow-sm cursor-pointer hover:shadow-md transition-all`}
+        >
+          <div className="flex items-center">
+            <div className="p-3 bg-purple-50 rounded-xl">
+              <BookOpen className="h-6 w-6 text-purple-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Kurslar soni</p>
+              <div className="text-3xl font-bold mt-2 text-gray-900">
+                {stats ? stats.total_courses : 0}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Darslar soni */}
+        <div 
+          onClick={() => setActiveTab("lessons")}
+          className={`bg-white rounded-2xl p-6 border ${activeTab === 'lessons' ? 'border-orange-500 ring-4 ring-orange-50' : 'border-gray-100'} shadow-sm cursor-pointer hover:shadow-md transition-all`}
+        >
+          <div className="flex items-center">
+            <div className="p-3 bg-orange-50 rounded-xl">
+              <PlayCircle className="h-6 w-6 text-orange-600" />
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-500">Darslar soni</p>
+              <div className="text-3xl font-bold mt-2 text-gray-900">
+                {stats ? stats.total_lessons : 0}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {activeTab === "courses" && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+          <h2 className="text-xl font-bold text-gray-900">Kurslar bo'yicha statistika</h2>
+        </div>
         
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-100">
@@ -130,13 +186,13 @@ export default function AdminDashboardPage() {
                   Kurs
                 </th>
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  O'qiyotganlar
+                  O'quvchilar
                 </th>
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Tamomlaganlar
+                  Sertifikatlar
                 </th>
-                <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Batafsil
+                <th scope="col" className="relative px-6 py-4">
+                  <span className="sr-only">Harakatlar</span>
                 </th>
               </tr>
             </thead>
@@ -236,10 +292,10 @@ export default function AdminDashboardPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">
-                      {u.gender || "—"}
+                      {u.gender || "?"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
-                      {u.birth_date ? differenceInYears(new Date(), new Date(u.birth_date)) : "—"} yosh
+                      {u.birth_date ? differenceInYears(new Date(), new Date(u.birth_date)) : "?"} yosh
                     </td>
                     <td className="px-6 py-4">
                       {u.courses_progress && u.courses_progress.length > 0 ? (
