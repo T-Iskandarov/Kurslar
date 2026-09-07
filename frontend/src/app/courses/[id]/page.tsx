@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
-import { ArrowLeft, PlayCircle, Lock, CheckCircle2, Clock, Users, ListChecks, X, ChevronDown } from "lucide-react";
+import { ArrowLeft, PlayCircle, Lock, CheckCircle2, Clock, Users, ListChecks, X, ChevronDown, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { format } from "date-fns";
@@ -122,7 +122,7 @@ export default function CourseDetailPage() {
                   
                   <div className="flex items-center gap-5 w-full sm:w-auto relative z-10">
                     <div className="w-16 h-16 flex-shrink-0 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md shadow-blue-200/50 transform -rotate-3">
-                      {course.author_name.charAt(0).toUpperCase()}
+                      <BadgeCheck size={32} className="text-white" />
                     </div>
                     <div>
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-[11px] font-bold uppercase tracking-wider mb-1.5">
@@ -130,7 +130,7 @@ export default function CourseDetailPage() {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                         </span>
-                        Maxsus Kurs Muallifi
+                        Kurs Muallifi
                       </div>
                       <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight">
                         {course.author_name}
