@@ -498,6 +498,9 @@ export default function AdminCourseLessonsPage() {
                   >
                     {module.title}
                   </h3>
+                  <span className="bg-gray-200 text-gray-600 text-xs font-semibold px-2.5 py-0.5 rounded-full ml-2">
+                    {module.lessons?.length || 0} ta dars
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                 <button
