@@ -14,10 +14,10 @@ export default function AdminCourseLessonsPage() {
   const [course, setCourse] = useState<any>(null);
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [collapsedModules, setCollapsedModules] = useState<number[]>([]);
+  const [expandedModules, setExpandedModules] = useState<number[]>([]);
 
   const toggleModule = (moduleId: number) => {
-    setCollapsedModules(prev => 
+    setExpandedModules(prev => 
       prev.includes(moduleId) 
         ? prev.filter(id => id !== moduleId) 
         : [...prev, moduleId]
@@ -487,7 +487,7 @@ export default function AdminCourseLessonsPage() {
                     onClick={() => toggleModule(module.id)}
                     className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-md transition-colors"
                   >
-                    {collapsedModules.includes(module.id) ? <ChevronRight size={20} /> : <ChevronDown size={20} />}
+                    {!expandedModules.includes(module.id) ? <ChevronRight size={20} /> : <ChevronDown size={20} />}
                   </button>
                   <div className="bg-blue-100 text-blue-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">
                     {module.order}
@@ -532,7 +532,7 @@ export default function AdminCourseLessonsPage() {
                       <div 
                         ref={provided.innerRef} 
                         {...provided.droppableProps} 
-                        className={`divide-y divide-gray-100 bg-white ${collapsedModules.includes(module.id) ? 'hidden' : 'block'}`}
+                        className={`divide-y divide-gray-100 bg-white ${!expandedModules.includes(module.id) ? 'hidden' : 'block'}`}
                       >
                         {module.lessons && module.lessons.length > 0 ? module.lessons.sort((a: any, b: any) => a.order - b.order).map((lesson: any, lIndex: number) => (
                         <Draggable key={`lesson-${lesson.id}`} draggableId={`lesson-${lesson.id}`} index={lIndex}>
@@ -594,7 +594,7 @@ export default function AdminCourseLessonsPage() {
                   )}
                 </Droppable>
                 
-                {(!module.lessons || module.lessons.length === 0) && !collapsedModules.includes(module.id) && (
+                {(!module.lessons || module.lessons.length === 0) && expandedModules.includes(module.id) && (
                   <div className="text-center py-6 text-sm text-gray-500 bg-gray-50/50">
                     Ushbu modulda hozircha darslar yo'q
                   </div>
