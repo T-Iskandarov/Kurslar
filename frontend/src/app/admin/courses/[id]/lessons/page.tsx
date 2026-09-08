@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus, Edit, Trash2, ListChecks, Save, X, Folder, Video, GripVertical, Paperclip, HelpCircle } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, ListChecks, Save, X, Folder, Video, GripVertical, Paperclip, HelpCircle, ChevronDown, ChevronRight } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { apiFetch } from "@/lib/api";
 
@@ -14,6 +14,15 @@ export default function AdminCourseLessonsPage() {
   const [course, setCourse] = useState<any>(null);
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [collapsedModules, setCollapsedModules] = useState<number[]>([]);
+
+  const toggleModule = (moduleId: number) => {
+    setCollapsedModules(prev => 
+      prev.includes(moduleId) 
+        ? prev.filter(id => id !== moduleId) 
+        : [...prev, moduleId]
+    );
+  };
 
   // Form states for Module
   const [showModuleForm, setShowModuleForm] = useState(false);
@@ -469,17 +478,28 @@ export default function AdminCourseLessonsPage() {
                       {...provided.draggableProps} 
                       className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden"
                     >
-            <div className="bg-gray-50 p-4 border-b border-gray-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div {...provided.dragHandleProps} className="text-gray-400 hover:text-gray-600 cursor-grab flex items-center">
-                  <GripVertical size={20} />
+              <div className="bg-gray-50 p-4 border-b border-gray-200 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div {...provided.dragHandleProps} className="text-gray-400 hover:text-gray-600 cursor-grab flex items-center">
+                    <GripVertical size={20} />
+                  </div>
+                  <button 
+                    onClick={() => toggleModule(module.id)}
+                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-md transition-colors"
+                  >
+                    {collapsedModules.includes(module.id) ? <ChevronRight size={20} /> : <ChevronDown size={20} />}
+                  </button>
+                  <div className="bg-blue-100 text-blue-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">
+                    {module.order}
+                  </div>
+                  <h3 
+                    className="text-lg font-bold text-gray-900 cursor-pointer select-none"
+                    onClick={() => toggleModule(module.id)}
+                  >
+                    {module.title}
+                  </h3>
                 </div>
-                <div className="bg-blue-100 text-blue-700 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm">
-                  {module.order}
-                </div>
-                <h3 className="text-lg font-bold text-gray-900">{module.title}</h3>
-              </div>
-              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleAddLessonClick(module.id)}
                   className="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
@@ -503,12 +523,15 @@ export default function AdminCourseLessonsPage() {
               </div>
             </div>
 
-            <div className="p-0">
-              {module.lessons && module.lessons.length > 0 ? (
-                <Droppable droppableId={`module-${module.id}`} type="lesson">
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="divide-y divide-gray-100 bg-white">
-                      {module.lessons.sort((a: any, b: any) => a.order - b.order).map((lesson: any, lIndex: number) => (
+              <div className="p-0">
+                  <Droppable droppableId={`module-${module.id}`} type="lesson">
+                    {(provided) => (
+                      <div 
+                        ref={provided.innerRef} 
+                        {...provided.droppableProps} 
+                        className={`divide-y divide-gray-100 bg-white ${collapsedModules.includes(module.id) ? 'hidden' : 'block'}`}
+                      >
+                        {module.lessons && module.lessons.length > 0 ? module.lessons.sort((a: any, b: any) => a.order - b.order).map((lesson: any, lIndex: number) => (
                         <Draggable key={`lesson-${lesson.id}`} draggableId={`lesson-${lesson.id}`} index={lIndex}>
                           {(provided) => (
                             <div 
@@ -562,17 +585,18 @@ export default function AdminCourseLessonsPage() {
                             </div>
                           )}
                         </Draggable>
-                      ))}
+                      )) : null}
                       {provided.placeholder}
                     </div>
                   )}
                 </Droppable>
-              ) : (
-                <div className="text-center py-6 text-sm text-gray-500 bg-gray-50/50">
-                  Ushbu modulda hozircha darslar yo'q
-                </div>
-              )}
-            </div>
+                
+                {(!module.lessons || module.lessons.length === 0) && !collapsedModules.includes(module.id) && (
+                  <div className="text-center py-6 text-sm text-gray-500 bg-gray-50/50">
+                    Ushbu modulda hozircha darslar yo'q
+                  </div>
+                )}
+              </div>
           </div>
                   )}
                 </Draggable>
