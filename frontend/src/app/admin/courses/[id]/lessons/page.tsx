@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus, Edit, Trash2, ListChecks, Save, X, Folder, Video, GripVertical } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, ListChecks, Save, X, Folder, Video, GripVertical, Paperclip, HelpCircle } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { apiFetch } from "@/lib/api";
 
@@ -532,17 +532,17 @@ export default function AdminCourseLessonsPage() {
                               <div className="flex items-center justify-end gap-2 shrink-0">
                             <Link
                               href={`/admin/lessons/${lesson.id}/resources`}
-                              className="flex items-center gap-1 text-emerald-600 hover:text-emerald-900 px-2 py-1.5 hover:bg-emerald-50 rounded-lg transition-colors border border-transparent hover:border-emerald-100"
+                              className={`flex items-center gap-1 px-2 py-1.5 rounded-lg transition-colors border border-transparent ${lesson.resources && lesson.resources.length > 0 ? "text-emerald-600 hover:text-emerald-900 hover:bg-emerald-50 hover:border-emerald-100" : "text-gray-400 hover:text-emerald-600 hover:bg-gray-50"}`}
                               title="Resurslar"
                             >
-                              <ListChecks size={16} />
+                              <Paperclip size={16} />
                             </Link>
                             <Link
                               href={`/admin/lessons/${lesson.id}/questions`}
-                              className="flex items-center gap-1 text-purple-600 hover:text-purple-900 px-2 py-1.5 hover:bg-purple-50 rounded-lg transition-colors border border-transparent hover:border-purple-100 mr-2"
+                              className={`flex items-center gap-1 px-2 py-1.5 rounded-lg transition-colors border border-transparent mr-2 ${lesson.questions && lesson.questions.length > 0 ? "text-purple-600 hover:text-purple-900 hover:bg-purple-50 hover:border-purple-100" : "text-gray-400 hover:text-purple-600 hover:bg-gray-50"}`}
                               title="Testlar"
                             >
-                              <ListChecks size={16} />
+                              <HelpCircle size={16} />
                             </Link>
                             <button
                               onClick={() => handleEditLessonClick(lesson, module.id)}
