@@ -208,7 +208,7 @@ export default function CourseDetailPage() {
                     <div className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                       <div className="p-3 space-y-2">
                       {module.lessons?.map((lesson: any, index: number) => {
-                        const isLocked = !lesson.is_unlocked;
+                        const isLocked = user?.is_staff ? false : !lesson.is_unlocked;
                         const isPassed = lesson.is_passed;
                         
                         return (
