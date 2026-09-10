@@ -16,12 +16,23 @@ export default function AdminCourseLessonsPage() {
   const [loading, setLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState<number[]>([]);
 
+  useEffect(() => {
+    const saved = localStorage.getItem(`expandedModules_${params.id}`);
+    if (saved) {
+      try {
+        setExpandedModules(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, [params.id]);
+
   const toggleModule = (moduleId: number) => {
-    setExpandedModules(prev => 
-      prev.includes(moduleId) 
+    setExpandedModules(prev => {
+      const next = prev.includes(moduleId) 
         ? prev.filter(id => id !== moduleId) 
-        : [...prev, moduleId]
-    );
+        : [...prev, moduleId];
+      localStorage.setItem(`expandedModules_${params.id}`, JSON.stringify(next));
+      return next;
+    });
   };
 
   // Form states for Module
