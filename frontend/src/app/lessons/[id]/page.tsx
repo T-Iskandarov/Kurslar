@@ -6,6 +6,8 @@ import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import YouTube from "react-youtube";
+import { useRef } from "react";
 
 export default function LessonDetailPage() {
   const params = useParams();
@@ -13,6 +15,53 @@ export default function LessonDetailPage() {
   const { user } = useAuth();
   const [lesson, setLesson] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const [canTakeTest, setCanTakeTest] = useState(false);
+  const watchIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (lesson) {
+      if (!lesson.youtube_video_id || lesson.is_passed || user?.is_staff) {
+        setCanTakeTest(true);
+      } else {
+        setCanTakeTest(false);
+      }
+    }
+  }, [lesson, user]);
+
+  useEffect(() => {
+    return () => {
+      if (watchIntervalRef.current) clearInterval(watchIntervalRef.current);
+    };
+  }, []);
+
+  const onStateChange = (event: any) => {
+    if (event.data === 1) { // PLAYING
+      if (watchIntervalRef.current) clearInterval(watchIntervalRef.current);
+      watchIntervalRef.current = setInterval(() => {
+        const currentTime = event.target.getCurrentTime();
+        const duration = event.target.getDuration();
+        if (duration > 0 && currentTime >= duration * 0.5) {
+          setCanTakeTest(true);
+          if (watchIntervalRef.current) clearInterval(watchIntervalRef.current);
+        }
+      }, 1000);
+    } else {
+      if (watchIntervalRef.current) {
+        clearInterval(watchIntervalRef.current);
+      }
+    }
+  };
+
+  const videoOpts = {
+    height: '100%',
+    width: '100%',
+    playerVars: {
+      autoplay: 0,
+      rel: 0,
+      vq: 'hd1080',
+    },
+  };
 
   const getYoutubeId = (url: string) => {
     if (!url) return 'dQw4w9WgXcQ';
@@ -62,13 +111,13 @@ export default function LessonDetailPage() {
         {/* Video Player */}
         <div className="relative w-full aspect-video bg-gray-900">
           {lesson.youtube_video_id ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${getYoutubeId(lesson.youtube_video_id)}?vq=hd1080&rel=0`}
-              title={lesson.title}
+            <YouTube
+              videoId={getYoutubeId(lesson.youtube_video_id)}
+              opts={videoOpts}
+              onStateChange={onStateChange}
               className="absolute inset-0 w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+              iframeClassName="w-full h-full"
+            />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-gray-500">
               Video mavjud emas
@@ -135,12 +184,22 @@ export default function LessonDetailPage() {
             </div>
             
             <div className="flex items-center gap-4 w-full sm:w-auto mt-4 sm:mt-0">
-              <Link
-                href={`/lessons/${lesson.id}/test`}
-                className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm text-center"
-              >
-                Testni ishlash
-              </Link>
+              {canTakeTest ? (
+                <Link
+                  href={`/lessons/${lesson.id}/test`}
+                  className="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm text-center"
+                >
+                  Testni ishlash
+                </Link>
+              ) : (
+                <button
+                  disabled
+                  className="w-full sm:w-auto px-6 py-2.5 bg-gray-300 text-gray-500 font-medium rounded-xl cursor-not-allowed shadow-sm text-center"
+                  title="Testga o'tish uchun videoning kamida 50% qismini ko'rishingiz kerak"
+                >
+                  Kamida 50% video ko'ring
+                </button>
+              )}
             </div>
           </div>
         </div>
