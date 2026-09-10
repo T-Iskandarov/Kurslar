@@ -128,7 +128,7 @@ export default function AdminLessonResourcesPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dars Resurslari</h1>
-            <p className="text-gray-500 mt-1">{lesson?.module_order && lesson?.order ? `${lesson.module_order}.${lesson.order} ` : ""}{lesson?.title || "Dars"}</p>
+            <p className="text-gray-500 mt-1">{lesson?.module_order !== undefined && lesson?.order !== undefined ? `${lesson.module_order}.${lesson.order} ` : ""}{lesson?.title || "Dars"}</p>
           </div>
         </div>
         {!showAddForm && (
