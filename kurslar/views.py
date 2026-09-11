@@ -833,3 +833,36 @@ class AITestView(APIView):
             return Response({"status": "ok", "message": msg})
         else:
             return Response({"status": "error", "error": msg}, status=500)
+
+class LessonAIChatView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, lesson_id):
+        lesson = get_object_or_404(Lesson, pk=lesson_id)
+        
+        # O'quvchi bu darsga kirish huquqiga egami?
+        # Tekshiramiz: Admin yoki sotib olingan kurs.
+        if not request.user.is_staff:
+            has_access = Enrollment.objects.filter(
+                user=request.user, 
+                course=lesson.module.course, 
+                status='active'
+            ).exists()
+            if not has_access:
+                return Response({"error": "Siz bu kursni sotib olmagansiz."}, status=403)
+
+        message = request.data.get('message', '')
+        history = request.data.get('history', [])
+        
+        if not message:
+            return Response({"error": "Xabar bo'sh bo'lishi mumkin emas."}, status=400)
+
+        from .services.ai_service import get_lesson_chat_response
+        reply = get_lesson_chat_response(
+            lesson_title=lesson.title,
+            lesson_content=lesson.content,
+            user_message=message,
+            history=history
+        )
+        
+        return Response({"reply": reply})
