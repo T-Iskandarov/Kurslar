@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { LogOut, User, BookOpen, Settings, Award, ShieldCheck } from "lucide-react";
+import { LogOut, User, BookOpen, Settings, Award, ShieldCheck, BrainCircuit } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export default function Navbar() {
@@ -52,6 +52,21 @@ export default function Navbar() {
             </Link>
           </div>
           <div className="hidden sm:flex items-center gap-4">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch("https://api.kurslarim.uz/api/ai-test/");
+                  const data = await res.json();
+                  alert(data.status === "ok" ? "AI Ishlayapti! " + data.message : "Xato: " + data.error);
+                } catch (e) {
+                  alert("Ulanishda xato: " + e);
+                }
+              }}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+            >
+              <BrainCircuit size={18} />
+              <span>AI Maslahat (Test)</span>
+            </button>
             <Link
               href="/verify"
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
