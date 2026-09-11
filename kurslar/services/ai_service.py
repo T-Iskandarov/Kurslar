@@ -21,7 +21,7 @@ Vazifangiz:
 4. Javob o'zbek tilida, qisqa (3-4 xatboshi) va konstruktiv bo'lsin.
 """
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     payload = {
         "contents": [{"parts": [{"text": system_prompt}]}],
         "generationConfig": {
