@@ -821,3 +821,15 @@ class ModuleAIDiagnosticView(APIView):
         progress.save()
         
         return Response({"feedback": feedback})
+
+from rest_framework.permissions import AllowAny
+
+class AITestView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        from .services.ai_service import test_ai
+        success, msg = test_ai()
+        if success:
+            return Response({"status": "ok", "message": msg})
+        else:
+            return Response({"status": "error", "error": msg}, status=500)
