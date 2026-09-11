@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Users, LogOut, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, LogOut, ArrowLeft, Settings } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AdminLayout({
@@ -16,6 +16,7 @@ export default function AdminLayout({
   const navItems = [
     { name: "Statistika", href: "/admin", icon: LayoutDashboard },
     { name: "Kurslar", href: "/admin/courses", icon: BookOpen },
+    { name: "AI Sozlamalari", href: "/admin/ai-settings", icon: Settings },
   ];
 
   return (

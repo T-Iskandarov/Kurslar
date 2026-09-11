@@ -24,6 +24,14 @@ export default function LessonDetailPage() {
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const chatScrollRef = useRef<HTMLDivElement>(null);
+  const [aiEnabled, setAiEnabled] = useState(true);
+
+  useEffect(() => {
+    fetch("https://api.kurslarim.uz/api/v1/public-settings/")
+      .then(res => res.json())
+      .then(data => setAiEnabled(data.is_ai_enabled ?? true))
+      .catch(err => console.error(err));
+  }, []);
 
   useEffect(() => {
     if (chatScrollRef.current) {
@@ -212,13 +220,15 @@ export default function LessonDetailPage() {
 
           <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={() => setIsChatOpen(true)}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm"
-              >
-                <BotMessageSquare size={20} />
-                <span>AI O'qituvchi</span>
-              </button>
+              {aiEnabled && (
+                <button
+                  onClick={() => setIsChatOpen(true)}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm"
+                >
+                  <BotMessageSquare size={20} />
+                  <span>AI O'qituvchi</span>
+                </button>
+              )}
               
               <a 
                 href={`https://t.me/T_Iskandarov_kurslar_bot?text=${encodeURIComponent(`Talaba: ${user?.full_name || 'Noma\'lum'}\nKurs: ${lesson.course_title}\nDars: ${lesson.title}\n\nSavolim: `)}`}
@@ -255,7 +265,7 @@ export default function LessonDetailPage() {
       </div>
 
       {/* AI Chat Modal */}
-      {isChatOpen && (
+      {aiEnabled && isChatOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
           <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl flex flex-col h-[600px] max-h-[90vh]">
             {/* Header */}

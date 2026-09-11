@@ -4,10 +4,19 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut, User, BookOpen, Settings, Award, ShieldCheck, BrainCircuit } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
+  const [aiEnabled, setAiEnabled] = useState(true);
+
+  useEffect(() => {
+    fetch("https://api.kurslarim.uz/api/v1/public-settings/")
+      .then(res => res.json())
+      .then(data => setAiEnabled(data.is_ai_enabled ?? true))
+      .catch(err => console.error(err));
+  }, []);
 
   // Hide navbar on login/register pages
   if (pathname === "/login" || pathname === "/register") {
@@ -52,21 +61,23 @@ export default function Navbar() {
             </Link>
           </div>
           <div className="hidden sm:flex items-center gap-4">
-            <button
-              onClick={async () => {
-                try {
-                  const res = await fetch("https://api.kurslarim.uz/api/v1/ai-test/");
-                  const data = await res.json();
-                  alert(data.status === "ok" ? "AI Ishlayapti! " + data.message : "Xato: " + data.error);
-                } catch (e) {
-                  alert("Ulanishda xato: " + e);
-                }
-              }}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
-            >
-              <BrainCircuit size={18} />
-              <span>AI Maslahat (Test)</span>
-            </button>
+            {aiEnabled && (
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch("https://api.kurslarim.uz/api/v1/ai-test/");
+                    const data = await res.json();
+                    alert(data.status === "ok" ? "AI Ishlayapti! " + data.message : "Xato: " + data.error);
+                  } catch (e) {
+                    alert("API ga ulanishda xato");
+                  }
+                }}
+                className="flex items-center gap-2 text-sm font-medium text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <BrainCircuit size={16} />
+                <span className="hidden lg:inline">AI Maslahat (Test)</span>
+              </button>
+            )}
             <Link
               href="/verify"
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
