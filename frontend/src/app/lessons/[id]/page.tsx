@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { useParams, useRouter } from 'next/navigation';
 import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle, BotMessageSquare, X, Send } from "lucide-react";
@@ -303,9 +305,15 @@ export default function LessonDetailPage() {
                     <div className={`max-w-[85%] rounded-2xl p-3 text-sm ${
                       msg.role === 'user' 
                         ? 'bg-purple-600 text-white rounded-br-none' 
-                        : 'bg-white text-gray-800 border border-gray-100 shadow-sm rounded-bl-none whitespace-pre-wrap'
+                        : 'bg-white text-gray-800 border border-gray-100 shadow-sm rounded-bl-none prose prose-sm prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5'
                     }`}>
-                      {msg.text}
+                      {msg.role === 'user' ? (
+                        <div className="whitespace-pre-wrap">{msg.text}</div>
+                      ) : (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.text}
+                        </ReactMarkdown>
+                      )}
                     </div>
                   </div>
                 ))
