@@ -49,3 +49,10 @@ urlpatterns = [
     path('admin/resources/<int:pk>/', views.AdminResourceDetailView.as_view(), name='admin-resource-detail'),
     path('admin/users/', views.AdminUserListView.as_view(), name='admin-user-list'),
 ]
+
+from .views import ModuleTestGenerateView, ModuleTestSubmitView, ModuleAIDiagnosticView
+urlpatterns.extend([
+    path('modules/<int:pk>/test/generate/', ModuleTestGenerateView.as_view()),
+    path('modules/<int:pk>/test/submit/', ModuleTestSubmitView.as_view()),
+    path('modules/<int:pk>/test/ai-diagnostic/', ModuleAIDiagnosticView.as_view()),
+])

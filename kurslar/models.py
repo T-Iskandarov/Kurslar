@@ -184,3 +184,39 @@ class FinalTestAttempt(models.Model):
 
     def __str__(self):
         return f"{self.user.phone} - {self.course.title} Final Test - Score: {self.score}"
+
+
+class ModuleProgress(models.Model):
+    STATUS_CHOICES = [
+        ('in_progress', 'Jarayonda'),
+        ('failed_retry_required', 'Qayta tayyorlanish kerak'),
+        ('passed', 'Muvaffaqiyatli o\'tgan'),
+    ]
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='module_progress')
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='progress')
+    is_passed = models.BooleanField(default=False)
+    score_percentage = models.FloatField(default=0.0)
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='in_progress')
+    
+    required_lessons_to_repeat = models.ManyToManyField(Lesson, blank=True)
+    ai_diagnostic_feedback = models.TextField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ['user', 'module']
+
+    def __str__(self):
+        return f"{self.user.phone} - {self.module.title} - {self.status}"
+
+class ModuleTestAttempt(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='module_attempts')
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='test_attempts')
+    score = models.IntegerField(default=0)
+    is_passed = models.BooleanField(default=False)
+    details = models.JSONField(help_text='List of user answers and correctness')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.phone} - {self.module.title} - Score: {self.score}"

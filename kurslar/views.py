@@ -648,3 +648,176 @@ class MyCertificatesView(ListAPIView):
     
     def get_queryset(self):
         return Certificate.objects.filter(user=self.request.user).order_by('-issued_at')
+
+
+import random
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions, status
+from django.shortcuts import get_object_or_404
+from .models import Module, Lesson, TestQuestion, ModuleProgress, ModuleTestAttempt, UserProgress
+from .services.ai_service import get_module_diagnostic
+from django.db import transaction
+
+class ModuleTestGenerateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        module = get_object_or_404(Module, pk=pk)
+        
+        progress, created = ModuleProgress.objects.get_or_create(user=request.user, module=module)
+        
+        if progress.status == 'failed_retry_required':
+            pending_lessons = progress.required_lessons_to_repeat.all()
+            if pending_lessons:
+                all_passed = True
+                for lesson in pending_lessons:
+                    up = UserProgress.objects.filter(user=request.user, lesson=lesson).first()
+                    if not up or not up.is_passed:
+                        all_passed = False
+                        break
+                
+                if all_passed:
+                    progress.status = 'in_progress'
+                    progress.required_lessons_to_repeat.clear()
+                    progress.save()
+                else:
+                    return Response({
+                        "error": "Qayta ko'rilishi majburiy bo'lgan darslar mavjud",
+                        "status": "failed_retry_required",
+                        "required_lessons": [{"id": l.id, "title": l.title} for l in pending_lessons],
+                        "ai_feedback": progress.ai_diagnostic_feedback
+                    }, status=403)
+
+        lessons = module.lessons.all()
+        questions_out = []
+        
+        for lesson in lessons:
+            qs = list(lesson.questions.all())
+            if qs:
+                selected = random.sample(qs, min(2, len(qs)))
+                questions_out.extend(selected)
+                
+        random.shuffle(questions_out)
+        
+        data = []
+        for q in questions_out:
+            opts = q.options if isinstance(q.options, list) else []
+            clean_opts = [{"text": o.get("text", ""), "image_url": o.get("image_url", "")} for o in opts]
+            data.append({
+                "id": q.id,
+                "lesson_id": q.lesson.id,
+                "question_text": q.question_text,
+                "image": q.image,
+                "options": clean_opts
+            })
+            
+        return Response({
+            "module_id": module.id,
+            "module_title": module.title,
+            "questions": data
+        })
+
+class ModuleTestSubmitView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request, pk):
+        module = get_object_or_404(Module, pk=pk)
+        answers = request.data.get('answers', {})
+        
+        total = 0
+        correct = 0
+        failed_lessons_set = set()
+        details = []
+
+        for q_id, sel_text in answers.items():
+            try:
+                q = TestQuestion.objects.get(id=q_id)
+                total += 1
+                is_correct = False
+                opts = q.options if isinstance(q.options, list) else []
+                for o in opts:
+                    if o.get('text') == sel_text and o.get('is_correct'):
+                        is_correct = True
+                        correct += 1
+                        break
+                
+                if not is_correct:
+                    failed_lessons_set.add(q.lesson)
+                    
+                details.append({
+                    "question_id": q.id,
+                    "lesson_id": q.lesson.id,
+                    "selected": sel_text,
+                    "is_correct": is_correct
+                })
+            except Exception:
+                continue
+
+        if total == 0:
+            return Response({"error": "No answers provided"}, status=400)
+
+        score = int((correct / total) * 100)
+        is_passed = score >= 80
+
+        progress, _ = ModuleProgress.objects.get_or_create(user=request.user, module=module)
+        progress.score_percentage = score
+
+        if is_passed:
+            progress.is_passed = True
+            progress.status = 'passed'
+            progress.required_lessons_to_repeat.clear()
+            progress.save()
+        else:
+            progress.is_passed = False
+            progress.status = 'failed_retry_required'
+            progress.required_lessons_to_repeat.set(list(failed_lessons_set))
+            
+            for lesson in failed_lessons_set:
+                up = UserProgress.objects.filter(user=request.user, lesson=lesson).first()
+                if up:
+                    up.is_passed = False
+                    up.save()
+            
+            progress.ai_diagnostic_feedback = ""
+            progress.save()
+
+        ModuleTestAttempt.objects.create(
+            user=request.user,
+            module=module,
+            score=score,
+            is_passed=is_passed,
+            details=details
+        )
+
+        return Response({
+            "score": score,
+            "is_passed": is_passed,
+            "correct_count": correct,
+            "total_count": total,
+            "failed_lessons": [{"id": l.id, "title": l.title} for l in failed_lessons_set]
+        })
+
+class ModuleAIDiagnosticView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        module = get_object_or_404(Module, pk=pk)
+        progress = get_object_or_404(ModuleProgress, user=request.user, module=module)
+        
+        if progress.status != 'failed_retry_required':
+            return Response({"error": "Talaba bu moduldan qarz emas"}, status=400)
+            
+        if progress.ai_diagnostic_feedback:
+            return Response({"feedback": progress.ai_diagnostic_feedback})
+            
+        failed_lessons = list(progress.required_lessons_to_repeat.all())
+        if not failed_lessons:
+            return Response({"feedback": "Qayta ko'riladigan darslar yo'q."})
+            
+        feedback = get_module_diagnostic(request.user.full_name or "Talaba", failed_lessons, module.title)
+        progress.ai_diagnostic_feedback = feedback
+        progress.save()
+        
+        return Response({"feedback": feedback})

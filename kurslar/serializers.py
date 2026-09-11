@@ -135,11 +135,18 @@ class CourseDetailSerializer(serializers.ModelSerializer):
                     'score': score
                 })
             
+            mod_status = 'in_progress'
+            if user:
+                mp = ModuleProgress.objects.filter(user=user, module=module).first()
+                if mp:
+                    mod_status = mp.status
+            
             module_data_list.append({
                 'id': module.id,
                 'title': module.title,
                 'order': module.order,
-                'lessons': lesson_data_list
+                'lessons': lesson_data_list,
+                'status': mod_status
             })
             
         unassigned_lessons = obj.lessons.filter(module__isnull=True).order_by('order')
@@ -186,12 +193,26 @@ class LessonDetailSerializer(serializers.ModelSerializer):
     questions = serializers.SerializerMethodField()
     resources = serializers.SerializerMethodField()
 
+    is_passed = serializers.SerializerMethodField()
+
     class Meta:
         model = Lesson
-        fields = ['id', 'title', 'order', 'youtube_video_id', 'content', 'course_id', 'course_title', 'questions', 'resources']
+        fields = ['id', 'title', 'order', 'youtube_video_id', 'content', 'course_id', 'course_title', 'questions', 'resources', 'is_passed']
+
+    def get_is_passed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            progress = obj.user_progress.filter(user=request.user).first()
+            return progress.is_passed if progress else False
+        return False
 
     def get_course_title(self, obj):
         return obj.course.title
+
+    def get_module_order(self, obj):
+        if obj.module:
+            return obj.module.order
+        return None
 
     def get_questions(self, obj):
         request = self.context.get('request')
@@ -248,12 +269,18 @@ class AdminLessonSerializer(serializers.ModelSerializer):
     questions = serializers.SerializerMethodField()
     course_id = serializers.IntegerField(source='course.id', read_only=True)
     module_id = serializers.IntegerField(source='module.id', read_only=True)
+    module_order = serializers.SerializerMethodField()
     resources = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
-        fields = '__all__'
+        fields = ['id', 'title', 'order', 'youtube_video_id', 'content', 'course', 'module', 'questions', 'course_id', 'module_id', 'module_order', 'resources']
         read_only_fields = ['course', 'module']
+
+    def get_module_order(self, obj):
+        if obj.module:
+            return obj.module.order
+        return None
 
     def get_questions(self, obj):
         return AdminTestQuestionSerializer(obj.questions.all(), many=True).data
