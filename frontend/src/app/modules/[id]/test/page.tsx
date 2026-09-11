@@ -155,10 +155,11 @@ export default function ModuleTestPage() {
               </button>
             )}
 
-            <div className="mt-8">
-              <button onClick={() => router.back()} className="text-blue-600 font-medium hover:underline">
-                Ortga qaytish
-              </button>
+            <div className="mt-10">
+               <button onClick={() => router.back()} className="px-10 py-3.5 bg-white hover:bg-gray-50 text-gray-800 font-semibold rounded-xl border border-gray-300 shadow-sm hover:shadow transition-all focus:ring-4 focus:ring-gray-100 flex items-center gap-2 mx-auto">
+                 <ArrowLeft size={18} className="text-gray-500" />
+                 Kursga qaytish
+               </button>
             </div>
          </div>
       </div>
@@ -282,8 +283,9 @@ export default function ModuleTestPage() {
               </div>
             )}
 
-            <div className="mt-6 w-full max-w-xs">
-               <button onClick={() => router.back()} className="w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-xl transition-colors">
+            <div className="mt-8">
+               <button onClick={() => router.back()} className="px-10 py-3.5 bg-white hover:bg-gray-50 text-gray-800 font-semibold rounded-xl border border-gray-300 shadow-sm hover:shadow transition-all focus:ring-4 focus:ring-gray-100 flex items-center gap-2 mx-auto">
+                 <ArrowLeft size={18} className="text-gray-500" />
                  Kursga qaytish
                </button>
             </div>
