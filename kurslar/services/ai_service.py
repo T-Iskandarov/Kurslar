@@ -2,11 +2,26 @@
 import requests
 import json
 from django.conf import settings
+from kurslar.models import SystemSetting
+
+def get_api_credentials():
+    sys_set = SystemSetting.get_settings()
+    if not sys_set.is_ai_enabled:
+        return False, "Tizimda AI xizmatlari vaqtincha o'chirilgan."
+    
+    provider = sys_set.active_ai_provider
+    api_key = getattr(sys_set, f"{provider}_api_key", None)
+    if not api_key:
+        return False, f"Tizimda {provider} API kalit kiritilmagan. Admin sozlamalarini tekshiring."
+    
+    return True, {"provider": provider, "api_key": api_key}
+
 
 def get_module_diagnostic(student_name, failed_lessons, module_title):
-    api_key = getattr(settings, 'GEMINI_API_KEY', None)
-    if not api_key:
-        return "AI tizimi vaqtinchalik ishlamayapti."
+    status, creds = get_api_credentials()
+    if not status: return creds
+    if creds['provider'] != 'gemini': return "Faqat Gemini API qo'llab quvvatlanadi hozircha."
+    api_key = creds['api_key']
 
     lessons_text = ", ".join([l.title for l in failed_lessons])
     
@@ -40,9 +55,10 @@ Vazifangiz:
         return "Tizimda kichik uzilish yuz berdi. Iltimos, xato qilgan darslaringizni diqqat bilan qayta ko'rib chiqing."
 
 def test_ai():
-    api_key = getattr(settings, 'GEMINI_API_KEY', None)
-    if not api_key:
-        return False, "API kalit topilmadi"
+    status, creds = get_api_credentials()
+    if not status: return False, creds
+    if creds['provider'] != 'gemini': return False, "Faqat Gemini qo'llab quvvatlanadi."
+    api_key = creds['api_key']
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={api_key}"
     payload = {"contents": [{"parts": [{"text": "Salom, sen ishladingmi? Qisqa 'ha' deb javob ber."}]}]}
     try:
@@ -53,9 +69,10 @@ def test_ai():
         return False, str(e)
 
 def get_lesson_chat_response(lesson_title, lesson_content, user_message, history=None):
-    api_key = getattr(settings, 'GEMINI_API_KEY', None)
-    if not api_key:
-        return "Tizimda API kalit topilmadi. Admin bilan bog'laning."
+    status, creds = get_api_credentials()
+    if not status: return creds
+    if creds['provider'] != 'gemini': return "Faqat Gemini qo'llab quvvatlanadi."
+    api_key = creds['api_key']
         
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={api_key}"
     

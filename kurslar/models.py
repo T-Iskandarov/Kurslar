@@ -220,3 +220,28 @@ class ModuleTestAttempt(models.Model):
 
     def __str__(self):
         return f"{self.user.phone} - {self.module.title} - Score: {self.score}"
+
+class SystemSetting(models.Model):
+    PROVIDER_CHOICES = [
+        ('gemini', 'Gemini'),
+        ('openai', 'OpenAI'),
+        ('claude', 'Claude'),
+    ]
+    is_ai_enabled = models.BooleanField(default=True)
+    active_ai_provider = models.CharField(max_length=50, choices=PROVIDER_CHOICES, default='gemini')
+    
+    gemini_api_key = models.CharField(max_length=255, blank=True, null=True)
+    openai_api_key = models.CharField(max_length=255, blank=True, null=True)
+    claude_api_key = models.CharField(max_length=255, blank=True, null=True)
+    
+    class Meta:
+        verbose_name = "Tizim Sozlamasi"
+        verbose_name_plural = "Tizim Sozlamalari"
+        
+    def __str__(self):
+        return "Tizim sozlamalari"
+    
+    @classmethod
+    def get_settings(cls):
+        obj, created = cls.objects.get_or_create(id=1)
+        return obj

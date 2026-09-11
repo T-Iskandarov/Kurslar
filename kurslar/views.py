@@ -866,3 +866,48 @@ class LessonAIChatView(APIView):
         )
         
         return Response({"reply": reply})
+
+from .models import SystemSetting
+
+class PublicSettingsView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        settings = SystemSetting.get_settings()
+        return Response({
+            "is_ai_enabled": settings.is_ai_enabled
+        })
+
+class AdminSystemSettingsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        if not request.user.is_staff:
+            return Response({"error": "Ruxsat etilmagan"}, status=403)
+            
+        settings = SystemSetting.get_settings()
+        return Response({
+            "is_ai_enabled": settings.is_ai_enabled,
+            "active_ai_provider": settings.active_ai_provider,
+            "gemini_api_key": settings.gemini_api_key,
+            "openai_api_key": settings.openai_api_key,
+            "claude_api_key": settings.claude_api_key
+        })
+        
+    def put(self, request):
+        if not request.user.is_staff:
+            return Response({"error": "Ruxsat etilmagan"}, status=403)
+            
+        settings = SystemSetting.get_settings()
+        settings.is_ai_enabled = request.data.get('is_ai_enabled', settings.is_ai_enabled)
+        settings.active_ai_provider = request.data.get('active_ai_provider', settings.active_ai_provider)
+        
+        # Only update keys if they are provided (could be empty string to clear them, but avoid overwriting with None if not in request)
+        if 'gemini_api_key' in request.data:
+            settings.gemini_api_key = request.data['gemini_api_key']
+        if 'openai_api_key' in request.data:
+            settings.openai_api_key = request.data['openai_api_key']
+        if 'claude_api_key' in request.data:
+            settings.claude_api_key = request.data['claude_api_key']
+            
+        settings.save()
+        return Response({"status": "success", "message": "Sozlamalar saqlandi."})

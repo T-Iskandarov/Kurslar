@@ -57,4 +57,6 @@ urlpatterns.extend([
     path('modules/<int:pk>/test/ai-diagnostic/', views.ModuleAIDiagnosticView.as_view(), name='module-test-ai-diagnostic'),
     path('ai-test/', views.AITestView.as_view(), name='ai-test'),
     path('lessons/<int:lesson_id>/ai-chat/', views.LessonAIChatView.as_view(), name='lesson-ai-chat'),
+    path('public-settings/', views.PublicSettingsView.as_view(), name='public-settings'),
+    path('admin/system-settings/', views.AdminSystemSettingsView.as_view(), name='admin-system-settings'),
 ])
