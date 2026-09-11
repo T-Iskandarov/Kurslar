@@ -55,7 +55,7 @@ export default function Navbar() {
             <button
               onClick={async () => {
                 try {
-                  const res = await fetch("https://api.kurslarim.uz/api/ai-test/");
+                  const res = await fetch("https://api.kurslarim.uz/api/v1/ai-test/");
                   const data = await res.json();
                   alert(data.status === "ok" ? "AI Ishlayapti! " + data.message : "Xato: " + data.error);
                 } catch (e) {
