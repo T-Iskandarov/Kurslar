@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { getTokens } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { Bot, Save, AlertTriangle, Key } from "lucide-react";
 
 export default function AdminAISettingsPage() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -21,9 +22,11 @@ export default function AdminAISettingsPage() {
 
   useEffect(() => {
     fetchSettings();
-  }, [token]);
+  }, []);
 
   const fetchSettings = async () => {
+    const tokens = getTokens();
+    const token = tokens ? tokens.access : null;
     if (!token) return;
     try {
       const res = await fetch("https://api.kurslarim.uz/api/v1/admin/system-settings/", {
@@ -45,6 +48,8 @@ export default function AdminAISettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
+    const tokens = getTokens();
+    const token = tokens ? tokens.access : null;
     try {
       const res = await fetch("https://api.kurslarim.uz/api/v1/admin/system-settings/", {
         method: "PUT",
