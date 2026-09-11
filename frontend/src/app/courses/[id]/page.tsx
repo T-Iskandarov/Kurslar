@@ -259,6 +259,67 @@ export default function CourseDetailPage() {
                       {(!module.lessons || module.lessons.length === 0) && (
                         <p className="text-gray-400 text-xs italic py-2 pl-2">Bu modulda hozircha darslar yo'q.</p>
                       )}
+                      
+                      {/* Modul Yakuniy Testi Button */}
+                      {module.lessons && module.lessons.length > 0 && (
+                        <div className="pt-3 pb-1">
+                          <Link
+                            href={
+                              (module.lessons.every((l: any) => l.is_passed) || user?.is_staff) 
+                                ? `/modules/${module.id}/test` 
+                                : "#"
+                            }
+                            className={`block rounded-xl border p-4 transition-all ${
+                              (module.lessons.every((l: any) => l.is_passed) || user?.is_staff)
+                                ? module.status === 'passed'
+                                  ? "bg-green-50 border-green-200 shadow-sm hover:shadow-md hover:border-green-300"
+                                  : "bg-blue-50 border-blue-200 shadow-sm hover:shadow-md hover:border-blue-300"
+                                : "bg-gray-50 border-gray-100 cursor-not-allowed opacity-75"
+                            }`}
+                            onClick={(e) => {
+                              if (!user) {
+                                e.preventDefault();
+                                setShowAuthModal(true);
+                                return;
+                              }
+                              if (!module.lessons.every((l: any) => l.is_passed) && !user?.is_staff) {
+                                e.preventDefault();
+                              }
+                            }}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`mt-0.5 flex-shrink-0 ${
+                                (module.lessons.every((l: any) => l.is_passed) || user?.is_staff) 
+                                  ? module.status === 'passed' ? 'text-green-600' : 'text-blue-600'
+                                  : 'text-gray-400'
+                              }`}>
+                                {module.status === 'passed' ? <CheckCircle2 size={18} /> : <ListChecks size={18} />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className={`text-sm font-bold leading-tight mb-1 ${
+                                  (module.lessons.every((l: any) => l.is_passed) || user?.is_staff)
+                                    ? module.status === 'passed' ? 'text-green-900' : 'text-blue-900'
+                                    : 'text-gray-500'
+                                }`}>
+                                  Modul Yakuniy Testi
+                                </p>
+                                <p className={`text-xs ${
+                                  (module.lessons.every((l: any) => l.is_passed) || user?.is_staff)
+                                    ? module.status === 'passed' ? 'text-green-700 font-medium' : 'text-blue-700 font-medium'
+                                    : 'text-gray-400'
+                                }`}>
+                                  {module.status === 'passed' 
+                                    ? "Moduldan muvaffaqiyatli o'tgansiz" 
+                                    : (module.lessons.every((l: any) => l.is_passed) || user?.is_staff) 
+                                      ? "Keyingi modulga o'tish uchun testni ishlang" 
+                                      : "Moduldagi barcha darslarni tugatgandan so'ng ochiladi"}
+                                </p>
+                              </div>
+                            </div>
+                          </Link>
+                        </div>
+                      )}
+                      
                       </div>
                     </div>
                   </div>
