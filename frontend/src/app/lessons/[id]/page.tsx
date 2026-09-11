@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle, BotMessageSquare, X, Send } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import YouTube from "react-youtube";
-import { useRef } from "react";
 
 export default function LessonDetailPage() {
   const params = useParams();
@@ -18,6 +17,48 @@ export default function LessonDetailPage() {
 
   const [canTakeTest, setCanTakeTest] = useState(false);
   const watchIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // AI Chat States
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<{role: 'user' | 'model', text: string}[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [chatMessages, isChatOpen]);
+
+  const handleSendMessage = async () => {
+    if (!chatInput.trim()) return;
+    const userText = chatInput.trim();
+    setChatMessages(prev => [...prev, { role: 'user', text: userText }]);
+    setChatInput('');
+    setChatLoading(true);
+    
+    try {
+      const res = await apiFetch(`/lessons/${params.id}/ai-chat/`, {
+        method: "POST",
+        body: JSON.stringify({
+          message: userText,
+          history: chatMessages
+        })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages(prev => [...prev, { role: 'model', text: data.reply }]);
+      } else {
+        setChatMessages(prev => [...prev, { role: 'model', text: "Kechirasiz, xatolik yuz berdi." }]);
+      }
+    } catch (error) {
+      setChatMessages(prev => [...prev, { role: 'model', text: "Tarmoqda xatolik yuz berdi." }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (lesson) {
@@ -170,7 +211,15 @@ export default function LessonDetailPage() {
           )}
 
           <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => setIsChatOpen(true)}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm"
+              >
+                <BotMessageSquare size={20} />
+                <span>AI O'qituvchi</span>
+              </button>
+              
               <a 
                 href={`https://t.me/T_Iskandarov_kurslar_bot?text=${encodeURIComponent(`Talaba: ${user?.full_name || 'Noma\'lum'}\nKurs: ${lesson.course_title}\nDars: ${lesson.title}\n\nSavolim: `)}`}
                 target="_blank"
@@ -178,8 +227,8 @@ export default function LessonDetailPage() {
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0088cc] hover:bg-[#0077b5] text-white font-medium rounded-xl transition-colors shadow-sm"
               >
                 <MessageCircle size={20} />
-                <span className="hidden sm:inline">Savol berish (Telegram)</span>
-                <span className="sm:hidden">Savol berish</span>
+                <span className="hidden sm:inline">Savol (Telegram)</span>
+                <span className="sm:hidden">Telegram</span>
               </a>
             </div>
             
@@ -204,6 +253,88 @@ export default function LessonDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* AI Chat Modal */}
+      {isChatOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl flex flex-col h-[600px] max-h-[90vh]">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-purple-50 rounded-t-2xl">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 p-2 rounded-xl text-purple-600">
+                  <BotMessageSquare size={24} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900">AI O'qituvchi</h3>
+                  <p className="text-xs text-purple-600 font-medium">{lesson.title}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsChatOpen(false)}
+                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Messages */}
+            <div 
+              ref={chatScrollRef}
+              className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
+            >
+              {chatMessages.length === 0 ? (
+                <div className="text-center py-10 text-gray-500">
+                  <BotMessageSquare size={40} className="mx-auto text-purple-200 mb-3" />
+                  <p className="text-sm">Assalomu alaykum! Ushbu dars bo'yicha tushunmagan joylaringiz yoki savollaringiz bo'lsa, menga yozing.</p>
+                </div>
+              ) : (
+                chatMessages.map((msg, idx) => (
+                  <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] rounded-2xl p-3 text-sm ${
+                      msg.role === 'user' 
+                        ? 'bg-purple-600 text-white rounded-br-none' 
+                        : 'bg-white text-gray-800 border border-gray-100 shadow-sm rounded-bl-none whitespace-pre-wrap'
+                    }`}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))
+              )}
+              {chatLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white border border-gray-100 shadow-sm rounded-2xl rounded-bl-none p-4 flex gap-1">
+                    <div className="w-2 h-2 bg-purple-300 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input */}
+            <div className="p-4 border-t border-gray-100 bg-white rounded-b-2xl">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder="Savolingizni yozing..."
+                  className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  disabled={chatLoading}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={chatLoading || !chatInput.trim()}
+                  className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2.5 rounded-xl transition-colors flex items-center justify-center"
+                >
+                  <Send size={18} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
