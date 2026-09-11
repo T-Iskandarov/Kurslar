@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getTokens } from "@/lib/api";
 import { toast } from "react-hot-toast";
-import { Bot, Save, AlertTriangle, Key } from "lucide-react";
+import { Bot, Save, AlertTriangle, Key, X, CheckCircle2 } from "lucide-react";
 
 export default function AdminAISettingsPage() {
   const { user } = useAuth();
@@ -19,6 +19,9 @@ export default function AdminAISettingsPage() {
     openai_api_key: "",
     claude_api_key: ""
   });
+
+  const [keyModalProvider, setKeyModalProvider] = useState<string | null>(null);
+  const [tempKey, setTempKey] = useState("");
 
   useEffect(() => {
     fetchSettings();
@@ -73,12 +76,39 @@ export default function AdminAISettingsPage() {
     }
   };
 
+  const handleProviderSelect = (provider: string) => {
+    setSettings({ ...settings, active_ai_provider: provider });
+    // If no key exists for this provider, auto-open modal
+    const currentKey = settings[`${provider}_api_key` as keyof typeof settings];
+    if (!currentKey) {
+      openKeyModal(provider);
+    }
+  };
+
+  const openKeyModal = (provider: string) => {
+    const currentKey = settings[`${provider}_api_key` as keyof typeof settings];
+    setTempKey(currentKey as string || "");
+    setKeyModalProvider(provider);
+  };
+
+  const saveKeyFromModal = () => {
+    if (keyModalProvider) {
+      setSettings({
+        ...settings,
+        [`${keyModalProvider}_api_key`]: tempKey
+      });
+    }
+    setKeyModalProvider(null);
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Yuklanmoqda...</div>;
   }
 
+  const providers = ['gemini', 'openai', 'claude'];
+
   return (
-    <div className="max-w-4xl mx-auto p-2 sm:p-6">
+    <div className="max-w-4xl mx-auto p-2 sm:p-6 relative">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">AI Sozlamalari</h1>
@@ -119,79 +149,100 @@ export default function AdminAISettingsPage() {
         <div className="pt-6">
           <h3 className="text-md font-medium text-gray-900 mb-4">Aktiv Modelni Tanlash</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {['gemini', 'openai', 'claude'].map(provider => (
-              <label 
-                key={provider}
-                className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                  settings.active_ai_provider === provider 
-                    ? "border-purple-600 bg-purple-50" 
-                    : "border-gray-100 hover:border-gray-200"
-                }`}
+            {providers.map(provider => {
+              const hasKey = !!settings[`${provider}_api_key` as keyof typeof settings];
+              return (
+                <div 
+                  key={provider}
+                  className={`flex flex-col gap-3 p-4 rounded-xl border-2 transition-colors ${
+                    settings.active_ai_provider === provider 
+                      ? "border-purple-600 bg-purple-50" 
+                      : "border-gray-100 hover:border-gray-200"
+                  }`}
+                >
+                  <label className="flex items-center gap-3 cursor-pointer w-full">
+                    <input 
+                      type="radio" 
+                      name="provider" 
+                      className="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-600"
+                      checked={settings.active_ai_provider === provider}
+                      onChange={() => handleProviderSelect(provider)}
+                    />
+                    <span className="font-bold text-gray-900 capitalize text-lg flex-1">{provider}</span>
+                  </label>
+                  
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200/50">
+                    <span className="text-xs font-medium flex items-center gap-1">
+                      {hasKey ? (
+                        <span className="text-green-600 flex items-center gap-1"><CheckCircle2 size={14}/> Ulandigan</span>
+                      ) : (
+                        <span className="text-red-500 flex items-center gap-1"><AlertTriangle size={14}/> Kalit yo'q</span>
+                      )}
+                    </span>
+                    
+                    <button 
+                      onClick={() => openKeyModal(provider)}
+                      className="text-xs font-medium text-blue-600 hover:text-blue-800 bg-blue-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
+                    >
+                      <Key size={14} />
+                      API Kalit
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Key Modal */}
+      {keyModalProvider && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900 capitalize flex items-center gap-2">
+                <Key className="text-purple-600" />
+                {keyModalProvider} API Kalit
+              </h3>
+              <button 
+                onClick={() => setKeyModalProvider(null)}
+                className="text-gray-400 hover:text-gray-600 p-1"
               >
-                <input 
-                  type="radio" 
-                  name="provider" 
-                  className="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-600"
-                  checked={settings.active_ai_provider === provider}
-                  onChange={() => setSettings({...settings, active_ai_provider: provider})}
-                />
-                <span className="font-medium text-gray-900 capitalize">{provider}</span>
-              </label>
-            ))}
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-500 mb-4">
+              Iltimos, {keyModalProvider} xizmati uchun taqdim etilgan yashirin API kalitni kiriting.
+            </p>
+            
+            <input 
+              type="password" 
+              value={tempKey}
+              onChange={(e) => setTempKey(e.target.value)}
+              placeholder="API kalitni shu yerga kiriting..."
+              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all font-mono text-sm"
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && saveKeyFromModal()}
+            />
+            
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => setKeyModalProvider(null)}
+                className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors"
+              >
+                Bekor qilish
+              </button>
+              <button 
+                onClick={saveKeyFromModal}
+                className="px-4 py-2 text-white bg-purple-600 hover:bg-purple-700 rounded-xl font-medium transition-colors"
+              >
+                Tasdiqlash
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-          <Key className="text-blue-600" />
-          API Kalitlar
-        </h2>
-        
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Google Gemini API Key</label>
-            <input 
-              type="text" 
-              placeholder="AIzaSy..."
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all"
-              value={settings.gemini_api_key || ''}
-              onChange={(e) => setSettings({...settings, gemini_api_key: e.target.value})}
-            />
-            {settings.active_ai_provider === 'gemini' && !settings.gemini_api_key && (
-              <p className="text-red-500 text-xs mt-2 flex items-center gap-1"><AlertTriangle size={14}/> Ushbu model tanlangan, lekin kalit kiritilmagan!</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">OpenAI API Key (ChatGPT)</label>
-            <input 
-              type="text" 
-              placeholder="sk-..."
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all"
-              value={settings.openai_api_key || ''}
-              onChange={(e) => setSettings({...settings, openai_api_key: e.target.value})}
-            />
-             {settings.active_ai_provider === 'openai' && !settings.openai_api_key && (
-              <p className="text-red-500 text-xs mt-2 flex items-center gap-1"><AlertTriangle size={14}/> Ushbu model tanlangan, lekin kalit kiritilmagan!</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Anthropic API Key (Claude)</label>
-            <input 
-              type="text" 
-              placeholder="sk-ant-..."
-              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all"
-              value={settings.claude_api_key || ''}
-              onChange={(e) => setSettings({...settings, claude_api_key: e.target.value})}
-            />
-             {settings.active_ai_provider === 'claude' && !settings.claude_api_key && (
-              <p className="text-red-500 text-xs mt-2 flex items-center gap-1"><AlertTriangle size={14}/> Ushbu model tanlangan, lekin kalit kiritilmagan!</p>
-            )}
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
