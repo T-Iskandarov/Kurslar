@@ -31,10 +31,23 @@ Vazifangiz:
     }
     
     try:
-        response = requests.post(url, json=payload, timeout=15)
+        response = requests.post(url, json=payload, timeout=60)
         response.raise_for_status()
         data = response.json()
         return data['candidates'][0]['content']['parts'][0]['text']
     except Exception as e:
         print("Gemini Error:", e)
         return "Tizimda kichik uzilish yuz berdi. Iltimos, xato qilgan darslaringizni diqqat bilan qayta ko'rib chiqing."
+
+def test_ai():
+    api_key = getattr(settings, 'GEMINI_API_KEY', None)
+    if not api_key:
+        return False, "API kalit topilmadi"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={api_key}"
+    payload = {"contents": [{"parts": [{"text": "Salom, sen ishladingmi? Qisqa 'ha' deb javob ber."}]}]}
+    try:
+        response = requests.post(url, json=payload, timeout=20)
+        response.raise_for_status()
+        return True, response.json()['candidates'][0]['content']['parts'][0]['text']
+    except Exception as e:
+        return False, str(e)
