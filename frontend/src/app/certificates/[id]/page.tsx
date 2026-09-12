@@ -221,7 +221,6 @@ export default function CertificatePage() {
 
           </div>
         </div>
-        </div>
       </div>
       
       {/* Verify Instructions (hidden on print) */}
