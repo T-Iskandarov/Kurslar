@@ -353,24 +353,24 @@ export default function CourseDetailPage() {
                       </Link>
                     ) : (
                       <Link 
-                        href={course.user_progress_percent === 100 ? `/courses/${course.id}/final-test` : "#"}
+                        href={course.user_progress_percent >= 100 ? `/courses/${course.id}/final-test` : "#"}
                         className={`block rounded-xl border p-4 transition-all ${
-                          course.user_progress_percent === 100
+                          course.user_progress_percent >= 100
                             ? "bg-purple-50 border-purple-200 shadow-sm hover:shadow-md hover:border-purple-300"
                             : "bg-gray-50 border-gray-100 cursor-not-allowed opacity-75"
                         }`}
-                        onClick={(e) => course.user_progress_percent !== 100 && e.preventDefault()}
+                        onClick={(e) => course.user_progress_percent < 100 && e.preventDefault()}
                       >
                         <div className="flex items-start gap-3">
-                          <div className={`mt-0.5 flex-shrink-0 ${course.user_progress_percent === 100 ? 'text-purple-600' : 'text-gray-400'}`}>
-                            {course.user_progress_percent === 100 ? <ListChecks size={18} /> : <Lock size={18} />}
+                          <div className={`mt-0.5 flex-shrink-0 ${course.user_progress_percent >= 100 ? 'text-purple-600' : 'text-gray-400'}`}>
+                            {course.user_progress_percent >= 100 ? <ListChecks size={18} /> : <Lock size={18} />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-bold leading-tight mb-1 ${course.user_progress_percent === 100 ? 'text-purple-900' : 'text-gray-500'}`}>
+                            <p className={`text-sm font-bold leading-tight mb-1 ${course.user_progress_percent >= 100 ? 'text-purple-900' : 'text-gray-500'}`}>
                               Yakuniy Test
                             </p>
-                            <p className={`text-xs ${course.user_progress_percent === 100 ? 'text-purple-700 font-medium' : 'text-gray-400'}`}>
-                              {course.user_progress_percent === 100 ? "Sertifikat olish uchun testni ishlash" : "Barcha darslarni tugatgandan so'ng ochiladi"}
+                            <p className={`text-xs ${course.user_progress_percent >= 100 ? 'text-purple-700 font-medium' : 'text-gray-400'}`}>
+                              {course.user_progress_percent >= 100 ? "Sertifikat olish uchun testni ishlash" : "Barcha darslarni tugatgandan so'ng ochiladi"}
                             </p>
                           </div>
                         </div>
