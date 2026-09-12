@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { useParams, useRouter } from 'next/navigation';
 import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle, BotMessageSquare, X, Send } from "lucide-react";
+import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle, X, Send } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import YouTube from "react-youtube";
 
@@ -27,49 +25,6 @@ export default function LessonDetailPage() {
   const [chatLoading, setChatLoading] = useState(false);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const [aiEnabled, setAiEnabled] = useState(true);
-
-  useEffect(() => {
-    fetch("https://api.kurslarim.uz/api/v1/public-settings/")
-      .then(res => res.json())
-      .then(data => setAiEnabled(data.is_ai_enabled ?? true))
-      .catch(err => console.error(err));
-  }, []);
-
-  useEffect(() => {
-    if (chatScrollRef.current) {
-      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
-    }
-  }, [chatMessages, isChatOpen]);
-
-  const handleSendMessage = async () => {
-    if (!chatInput.trim()) return;
-    const userText = chatInput.trim();
-    setChatMessages(prev => [...prev, { role: 'user', text: userText }]);
-    setChatInput('');
-    setChatLoading(true);
-    
-    try {
-      const res = await apiFetch(`/lessons/${params.id}/ai-chat/`, {
-        method: "POST",
-        body: JSON.stringify({
-          message: userText,
-          history: chatMessages
-        })
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        setChatMessages(prev => [...prev, { role: 'model', text: data.reply }]);
-      } else {
-        setChatMessages(prev => [...prev, { role: 'model', text: "Kechirasiz, xatolik yuz berdi." }]);
-      }
-    } catch (error) {
-      setChatMessages(prev => [...prev, { role: 'model', text: "Tarmoqda xatolik yuz berdi." }]);
-    } finally {
-      setChatLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (lesson) {
       if (!lesson.youtube_video_id || lesson.is_passed || user?.is_staff) {
@@ -222,15 +177,6 @@ export default function LessonDetailPage() {
 
           <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3">
-              {aiEnabled && (
-                <button
-                  onClick={() => setIsChatOpen(true)}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm"
-                >
-                  <BotMessageSquare size={20} />
-                  <span>AI O'qituvchi</span>
-                </button>
-              )}
               
               <a 
                 href={`https://t.me/T_Iskandarov_kurslar_bot?text=${encodeURIComponent(`Talaba: ${user?.full_name || 'Noma\'lum'}\nKurs: ${lesson.course_title}\nDars: ${lesson.title}\n\nSavolim: `)}`}
