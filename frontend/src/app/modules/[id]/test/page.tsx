@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, XCircle, BrainCircuit } from "lucide-react";
+import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 
 export default function ModuleTestPage() {
   const params = useParams();
@@ -19,9 +19,6 @@ export default function ModuleTestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<any>(null);
   
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiFeedback, setAiFeedback] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -38,9 +35,7 @@ export default function ModuleTestPage() {
             score: 0,
             is_locked: true
           });
-          if (resData.ai_feedback) {
-            setAiFeedback(resData.ai_feedback);
-          }
+
         } else {
           router.push("/courses");
         }
@@ -92,23 +87,6 @@ export default function ModuleTestPage() {
     }
   };
 
-  const handleGetAiAdvice = async () => {
-    setAiLoading(true);
-    try {
-      const res = await apiFetch(`/modules/${params.id}/test/ai-diagnostic/`, {
-        method: "POST"
-      });
-      if (res.ok) {
-        const resData = await res.json();
-        setAiFeedback(resData.feedback);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setAiLoading(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -134,26 +112,7 @@ export default function ModuleTestPage() {
               </ul>
             </div>
 
-            {aiFeedback ? (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-left max-w-2xl mx-auto shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <BrainCircuit className="text-blue-600" size={24} />
-                  <h3 className="font-bold text-blue-900 text-lg">AI Ustoz maslahati</h3>
-                </div>
-                <div className="text-blue-800 whitespace-pre-wrap leading-relaxed">
-                  {aiFeedback}
-                </div>
-              </div>
-            ) : (
-              <button 
-                onClick={handleGetAiAdvice}
-                disabled={aiLoading}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl shadow-sm transition-colors disabled:opacity-50"
-              >
-                <BrainCircuit size={20} />
-                {aiLoading ? "Tahlil qilinmoqda..." : "AI dan maslahat olish"}
-              </button>
-            )}
+
 
             <div className="mt-10">
                <button onClick={() => router.back()} className="px-10 py-3.5 bg-white hover:bg-gray-50 text-gray-800 font-semibold rounded-xl border border-gray-300 shadow-sm hover:shadow transition-all focus:ring-4 focus:ring-gray-100 flex items-center gap-2 mx-auto">
@@ -259,26 +218,7 @@ export default function ModuleTestPage() {
                     ))}
                   </ul>
 
-                  {aiFeedback ? (
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 shadow-inner">
-                      <div className="flex items-center gap-2 mb-3">
-                        <BrainCircuit className="text-blue-600" size={24} />
-                        <h3 className="font-bold text-blue-900 text-lg">AI Ustoz xulosasi</h3>
-                      </div>
-                      <div className="text-blue-800 whitespace-pre-wrap leading-relaxed">
-                        {aiFeedback}
-                      </div>
-                    </div>
-                  ) : (
-                    <button 
-                      onClick={handleGetAiAdvice}
-                      disabled={aiLoading}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50"
-                    >
-                      <BrainCircuit size={22} />
-                      {aiLoading ? "Natijalar tahlil qilinmoqda..." : "AI dan maslahat olish"}
-                    </button>
-                  )}
+
                 </div>
               </div>
             )}
