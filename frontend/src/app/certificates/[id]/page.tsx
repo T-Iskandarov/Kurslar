@@ -116,107 +116,111 @@ export default function CertificatePage() {
           style={{ width: '1000px', minWidth: '1000px', height: '707px', minHeight: '707px' }}
           className="bg-white shadow-2xl relative overflow-hidden print:shadow-none flex flex-col shrink-0 bg-[url('/certificates/sertifikat_background.png')] bg-cover bg-center"
         >
-          {/* Main Content Container - Positioned absolutely to match the background design */}
-          <div className="absolute inset-0 z-10 flex flex-col items-center pt-[55px] px-[80px]">
+          {/* Main Content Container - Centered nicely */}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-between w-full h-full pt-[45px] pb-[75px] px-[80px]">
             
-            {/* Logos */}
-            <div className="flex items-center justify-center gap-6 h-[40px]">
-              <img src="/certificates/cubo-logo.png" alt="Cubo" className="h-full object-contain" />
-              <div className="h-full w-px bg-gray-300"></div>
-              <img src="/certificates/kurslarim-logo.png" alt="Kurslarim.uz" className="h-full object-contain" />
-            </div>
+            {/* TOP SECTION (Logos to Course Title) */}
+            <div className="flex flex-col items-center w-full">
+              {/* Logos */}
+              <div className="flex items-center justify-center gap-6 h-[40px] mb-[15px]">
+                <img src="/certificates/cubo-logo.png" alt="Cubo" className="h-[35px] object-contain" />
+                <div className="h-[30px] w-px bg-gray-300"></div>
+                <img src="/certificates/kurslarim-logo.png" alt="Kurslarim.uz" className="h-[25px] object-contain" />
+              </div>
 
-            {/* Title */}
-            <h1 className="text-[60px] leading-tight font-serif font-bold text-[#0a195c] mt-[10px] mb-1 tracking-wider uppercase">
-              Sertifikat
-            </h1>
-            
-            {/* Subtitle */}
-            <div className="flex items-center gap-4 mb-[40px]">
-              <div className="h-px bg-[#0a195c] w-12"></div>
-              <p className="text-sm text-[#0a195c] uppercase tracking-widest font-semibold">
-                Muvaffaqiyatli yakunlaganlik uchun
-              </p>
-              <div className="h-px bg-[#0a195c] w-12"></div>
-            </div>
-            
-            <p className="text-gray-500 text-base mb-1 font-medium">Ushbu sertifikat</p>
-            <h2 className="text-[46px] leading-tight font-serif font-bold text-[#0a195c] mb-6 border-b border-gray-400 pb-2 px-16 inline-block min-w-[500px] text-center">
-              {cert.user_name}
-            </h2>
-            
-            <p className="text-gray-500 text-base mb-2 font-medium">quyidagi kursni muvaffaqiyatli tugatganligi uchun berildi:</p>
-            <h3 className="text-4xl font-bold text-[#2563eb] mb-auto max-w-2xl text-center line-clamp-2">
-              "{cert.course_title}"
-            </h3>
-            
-            {/* Bottom Section */}
-            <div className="w-[840px] absolute bottom-[90px] left-[80px] flex flex-col gap-6">
+              {/* Title */}
+              <h1 className="text-[55px] leading-tight font-serif font-bold text-[#081a54] mb-2 tracking-wider uppercase">
+                Sertifikat
+              </h1>
               
-              {/* Info Row & QR Code */}
-              <div className="flex items-center justify-between">
-                {/* 3 Info Items */}
-                <div className="flex items-center gap-6 flex-1">
-                  
-                  {/* Date */}
-                  <div className="flex items-center gap-3">
-                    <Calendar className="text-blue-500" size={32} strokeWidth={1.5} />
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Berilgan sana</p>
-                      <p className="font-bold text-[#0a195c] text-sm">
-                        {format(new Date(cert.issued_at), "d MMMM yyyy", { locale: uz })}
-                      </p>
-                    </div>
+              {/* Subtitle */}
+              <div className="flex items-center justify-center gap-4 w-full mb-[35px]">
+                <div className="h-px bg-[#081a54] w-[120px]"></div>
+                <p className="text-[13px] text-[#081a54] uppercase tracking-[0.2em] font-semibold">
+                  Muvaffaqiyatli yakunlaganlik uchun
+                </p>
+                <div className="h-px bg-[#081a54] w-[120px]"></div>
+              </div>
+              
+              <p className="text-gray-500 text-[15px] mb-2 font-medium">Ushbu sertifikat</p>
+              
+              <div className="relative w-full max-w-[700px] flex flex-col items-center mb-6">
+                <h2 className="text-[44px] leading-tight font-serif font-bold text-[#081a54] px-8 text-center z-10 bg-transparent">
+                  {cert.user_name}
+                </h2>
+                {/* Absolute line under text so it has fixed max width */}
+                <div className="w-full max-w-[600px] h-px bg-gray-400 mt-2"></div>
+              </div>
+              
+              <p className="text-gray-500 text-[15px] mb-2 font-medium">quyidagi kursni muvaffaqiyatli tugatganligi uchun berildi:</p>
+              <h3 className="text-[34px] font-bold text-[#1d4ed8] text-center max-w-[700px] leading-snug">
+                "{cert.course_title}"
+              </h3>
+            </div>
+
+            {/* BOTTOM SECTION */}
+            <div className="w-full flex flex-col justify-end flex-1">
+              
+              {/* INFO ROW */}
+              <div className="flex justify-center items-center gap-[50px] w-full mb-[30px]">
+                {/* Date */}
+                <div className="flex items-center gap-3">
+                  <Calendar className="text-[#3b82f6]" size={28} strokeWidth={1.5} />
+                  <div>
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Berilgan sana</p>
+                    <p className="font-bold text-[#081a54] text-[13px]">
+                      {format(new Date(cert.issued_at), "d MMMM yyyy", { locale: uz })}
+                    </p>
                   </div>
-
-                  <div className="h-10 w-px bg-gray-200"></div>
-
-                  {/* Result */}
-                  <div className="flex items-center gap-3">
-                    <BarChart className="text-blue-500" size={32} strokeWidth={1.5} />
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Natija</p>
-                      <p className="font-bold text-[#0a195c] text-sm">{cert.score}%</p>
-                    </div>
-                  </div>
-
-                  <div className="h-10 w-px bg-gray-200"></div>
-
-                  {/* ID */}
-                  <div className="flex items-center gap-3">
-                    <FileText className="text-blue-500" size={32} strokeWidth={1.5} />
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">ID Raqam</p>
-                      <p className="font-bold text-[#0a195c] text-sm">{cert.certificate_id}</p>
-                    </div>
-                  </div>
-                  
                 </div>
-
-                <div className="h-10 w-px bg-gray-200 mx-6"></div>
-
-                {/* QR Code */}
-                <div className="flex-shrink-0 bg-white p-1.5 border border-gray-200 rounded-lg shadow-sm">
-                  <img src={qrCodeUrl} alt="QR Code" className="w-[60px] h-[60px]" />
+                
+                <div className="h-8 w-px bg-gray-300"></div>
+                
+                {/* Result */}
+                <div className="flex items-center gap-3">
+                  <BarChart className="text-[#3b82f6]" size={28} strokeWidth={1.5} />
+                  <div>
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Natija</p>
+                    <p className="font-bold text-[#081a54] text-[13px]">{cert.score}%</p>
+                  </div>
+                </div>
+                
+                <div className="h-8 w-px bg-gray-300"></div>
+                
+                {/* ID */}
+                <div className="flex items-center gap-3">
+                  <FileText className="text-[#3b82f6]" size={28} strokeWidth={1.5} />
+                  <div>
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">ID Raqam</p>
+                    <p className="font-bold text-[#081a54] text-[13px] uppercase">{cert.certificate_id}</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Signature & Stamp */}
-              <div className="flex items-end mt-2">
-                <div className="flex items-end">
-                  <div className="flex flex-col items-center w-40">
-                    <img src="/certificates/imzo.png" alt="Imzo" className="h-[60px] w-auto object-contain -mb-2 z-10" />
+              {/* SIGNATURE, STAMP AND QR */}
+              <div className="flex justify-between items-end w-full px-[20px]">
+                
+                {/* Left: Signature & Stamp */}
+                <div className="flex items-end relative">
+                  <div className="flex flex-col items-center w-[160px] z-10">
+                    <img src="/certificates/imzo.png" alt="Imzo" className="h-[55px] object-contain -mb-1" />
                     <div className="w-full h-px bg-gray-400 mb-1"></div>
-                    <p className="font-bold text-[#0a195c] text-sm">CUBO MCHJ</p>
-                    <p className="text-gray-500 text-xs">Direktor</p>
+                    <p className="font-bold text-[#081a54] text-[13px]">CUBO MCHJ</p>
+                    <p className="text-gray-500 text-[11px]">Direktor</p>
                   </div>
-                  <img src="/certificates/pechat-sifatlisi.png" alt="Pechat" className="h-[90px] w-[90px] object-contain ml-4 -mb-4 opacity-90 mix-blend-multiply" />
+                  <img src="/certificates/pechat-sifatlisi.png" alt="Pechat" className="h-[95px] w-[95px] object-contain absolute left-[120px] top-[-30px] opacity-90 mix-blend-multiply pointer-events-none" />
                 </div>
-              </div>
 
+                {/* Right: QR Code */}
+                <div className="bg-white p-1.5 border border-gray-200 rounded-md shadow-sm mb-2">
+                  <img src={qrCodeUrl} alt="QR Code" className="w-[65px] h-[65px]" />
+                </div>
+                
+              </div>
             </div>
 
           </div>
+        </div>
         </div>
       </div>
       
