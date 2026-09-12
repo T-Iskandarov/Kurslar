@@ -114,10 +114,10 @@ export default function CertificatePage() {
         <div 
           ref={certificateRef}
           style={{ width: '1000px', minWidth: '1000px', height: '707px', minHeight: '707px' }}
-          className="bg-white shadow-2xl relative overflow-hidden print:shadow-none flex flex-col shrink-0 bg-[url('/certificates/sertifikat_background.png')] bg-cover bg-center"
+          className="bg-white shadow-2xl relative overflow-hidden print:shadow-none flex flex-col shrink-0 bg-[url('/certificates/sertifikat_background.png')] bg-[length:100%_100%] bg-center"
         >
           {/* Main Content Container - Centered nicely */}
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-between w-full h-full pt-[45px] pb-[75px] px-[80px]">
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-between w-full h-full pt-[45px] pb-[45px] px-[80px]">
             
             {/* TOP SECTION (Logos to Course Title) */}
             <div className="flex flex-col items-center w-full">
@@ -125,7 +125,7 @@ export default function CertificatePage() {
               <div className="flex items-center justify-center gap-6 h-[45px] mb-[15px]">
                 <img src="/certificates/cubo-logo.png" alt="Cubo" className="h-[40px] object-contain" />
                 <div className="h-[35px] w-px bg-gray-300"></div>
-                <img src="/certificates/kurslarim-logo.png" alt="Kurslarim.uz" className="h-[38px] object-contain" />
+                <img src="/certificates/kurslarim-logo.png" alt="Kurslarim.uz" className="h-[44px] object-contain" />
               </div>
 
               {/* Title */}
@@ -208,7 +208,7 @@ export default function CertificatePage() {
                     <p className="font-bold text-[#081a54] text-[13px]">CUBO MCHJ</p>
                     <p className="text-gray-500 text-[11px]">Direktor</p>
                   </div>
-                  <img src="/certificates/pechat-sifatlisi.png" alt="Pechat" className="h-[110px] w-[110px] object-contain absolute left-[60px] top-[-40px] opacity-90 mix-blend-multiply pointer-events-none z-20" />
+                  <img src="/certificates/pechat-sifatlisi.png" alt="Pechat" className="h-[110px] w-[110px] object-contain absolute left-[60px] top-[-10px] opacity-90 mix-blend-multiply pointer-events-none z-20" />
                 </div>
 
                 {/* Right: QR Code */}
