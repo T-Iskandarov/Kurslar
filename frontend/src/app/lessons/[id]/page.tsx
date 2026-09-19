@@ -41,34 +41,79 @@ export default function LessonDetailPage() {
     }
   }, [chatMessages, isChatOpen]);
 
-  const handleSendMessage = async () => {
-    if (!chatInput.trim()) return;
-    const userText = chatInput.trim();
-    setChatMessages(prev => [...prev, { role: 'user', text: userText }]);
-    setChatInput('');
-    setChatLoading(true);
-    
-    try {
-      const res = await apiFetch(`/lessons/${params.id}/ai-chat/`, {
-        method: "POST",
-        body: JSON.stringify({
-          message: userText,
-          history: chatMessages
-        })
-      });
+    const handleSendMessage = async (e?: React.FormEvent) => {
+      e?.preventDefault();
+      if (!chatInput.trim()) return;
       
-      if (res.ok) {
-        const data = await res.json();
-        setChatMessages(prev => [...prev, { role: 'model', text: data.reply }]);
-      } else {
-        setChatMessages(prev => [...prev, { role: 'model', text: "Kechirasiz, xatolik yuz berdi." }]);
+      const userText = chatInput.trim();
+      setChatMessages(prev => [...prev, { role: 'user', text: userText }]);
+      setChatInput('');
+      setChatLoading(true);
+      
+      try {
+        const res = await apiFetch(`/lessons/${params.id}/ai-chat/`, {
+          method: "POST",
+          body: JSON.stringify({
+            message: userText,
+            history: chatMessages
+          })
+        });
+        
+        if (res.ok) {
+          const contentType = res.headers.get('content-type');
+          if (contentType && contentType.includes('text/event-stream')) {
+            setChatLoading(false);
+            setChatMessages(prev => [...prev, { role: 'model', text: '' }]);
+            
+            const reader = res.body?.getReader();
+            if (!reader) throw new Error("Stream o'qib bo'lmadi");
+            const decoder = new TextDecoder('utf-8');
+            let buffer = '';
+            
+            let done = false;
+            while (!done) {
+              const { value, done: readerDone } = await reader.read();
+              done = readerDone;
+              if (value) {
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                // Barcha to'liq qatorlarni o'qiymiz, oxirgi qator chala bo'lishi mumkin
+                buffer = lines.pop() || '';
+                
+                for (const line of lines) {
+                  if (line.startsWith('data: ')) {
+                    const dataStr = line.substring(6).trim();
+                    if (dataStr === '[DONE]' || !dataStr) continue;
+                    try {
+                      const parsed = JSON.parse(dataStr);
+                      if (parsed.content) {
+                        setChatMessages(prev => {
+                          const newMsgs = [...prev];
+                          newMsgs[newMsgs.length - 1].text += parsed.content;
+                          return newMsgs;
+                        });
+                      }
+                    } catch (e) {
+                      // ignore parse errors for partial chunks
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            const data = await res.json();
+            setChatMessages(prev => [...prev, { role: 'model', text: data.reply }]);
+          }
+        } else {
+          setChatMessages(prev => [...prev, { role: 'model', text: "Kechirasiz, xatolik yuz berdi." }]);
+        }
+      } catch (error) {
+        console.error(error);
+        setChatMessages(prev => [...prev, { role: 'model', text: "Tarmoqda xatolik yuz berdi." }]);
+      } finally {
+        setChatLoading(false);
       }
-    } catch (error) {
-      setChatMessages(prev => [...prev, { role: 'model', text: "Tarmoqda xatolik yuz berdi." }]);
-    } finally {
-      setChatLoading(false);
-    }
-  };
+    };
 
   useEffect(() => {
     if (lesson) {
@@ -356,3 +401,4 @@ export default function LessonDetailPage() {
     </div>
   );
 }
+
