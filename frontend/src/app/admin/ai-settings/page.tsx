@@ -17,7 +17,9 @@ export default function AdminAISettingsPage() {
     active_ai_provider: "gemini",
     gemini_api_key: "",
     openai_api_key: "",
-    claude_api_key: ""
+    claude_api_key: "",
+    deepinfra_api_key: "",
+    openrouter_api_key: ""
   });
 
   const [keyModalProvider, setKeyModalProvider] = useState<string | null>(null);
@@ -105,7 +107,7 @@ export default function AdminAISettingsPage() {
     return <div className="p-8 text-center text-gray-500">Yuklanmoqda...</div>;
   }
 
-  const providers = ['gemini', 'openai', 'claude'];
+  const providers = ['gemini', 'openai', 'claude', 'deepinfra', 'openrouter'];
 
   return (
     <div className="max-w-4xl mx-auto p-2 sm:p-6 relative">
