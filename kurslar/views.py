@@ -892,6 +892,79 @@ class AdminSystemSettingsView(APIView):
             "openai_api_key": settings.openai_api_key,
             "claude_api_key": settings.claude_api_key
         })
+
+from rest_framework.permissions import AllowAny
+
+class AITestView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        from .services.ai_service import test_ai
+        success, msg = test_ai()
+        if success:
+            return Response({"status": "ok", "message": msg})
+        else:
+            return Response({"status": "error", "error": msg}, status=500)
+
+class LessonAIChatView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, lesson_id):
+        lesson = get_object_or_404(Lesson, pk=lesson_id)
+        
+        # O'quvchi bu darsga kirish huquqiga egami?
+        # Tekshiramiz: Admin yoki sotib olingan kurs.
+        if not request.user.is_staff:
+            has_access = Enrollment.objects.filter(
+                user=request.user, 
+                course=lesson.module.course, 
+                status='active'
+            ).exists()
+            if not has_access:
+                return Response({"error": "Siz bu kursni sotib olmagansiz."}, status=403)
+
+        message = request.data.get('message', '')
+        history = request.data.get('history', [])
+        
+        if not message:
+            return Response({"error": "Xabar bo'sh bo'lishi mumkin emas."}, status=400)
+
+        from .services.ai_service import get_lesson_chat_response
+        reply = get_lesson_chat_response(
+            lesson_title=lesson.title,
+            lesson_content=lesson.content,
+            user_message=message,
+            history=history
+        )
+        
+        return Response({"reply": reply})
+
+from .models import SystemSetting
+
+class PublicSettingsView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        settings = SystemSetting.get_settings()
+        return Response({
+            "is_ai_enabled": settings.is_ai_enabled
+        })
+
+class AdminSystemSettingsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        if not request.user.is_staff:
+            return Response({"error": "Ruxsat etilmagan"}, status=403)
+            
+        settings = SystemSetting.get_settings()
+        return Response({
+            "is_ai_enabled": settings.is_ai_enabled,
+            "active_ai_provider": settings.active_ai_provider,
+            "gemini_api_key": settings.gemini_api_key,
+            "openai_api_key": settings.openai_api_key,
+            "claude_api_key": settings.claude_api_key,
+            "deepinfra_api_key": settings.deepinfra_api_key,
+            "openrouter_api_key": settings.openrouter_api_key
+        })
         
     def put(self, request):
         if not request.user.is_staff:
@@ -908,6 +981,10 @@ class AdminSystemSettingsView(APIView):
             settings.openai_api_key = request.data['openai_api_key']
         if 'claude_api_key' in request.data:
             settings.claude_api_key = request.data['claude_api_key']
+        if 'deepinfra_api_key' in request.data:
+            settings.deepinfra_api_key = request.data['deepinfra_api_key']
+        if 'openrouter_api_key' in request.data:
+            settings.openrouter_api_key = request.data['openrouter_api_key']
             
         settings.save()
         return Response({"status": "success", "message": "Sozlamalar saqlandi."})

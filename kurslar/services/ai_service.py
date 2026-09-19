@@ -1,6 +1,6 @@
-
 import requests
 import json
+import time
 from django.conf import settings
 from kurslar.models import SystemSetting
 
@@ -16,117 +16,133 @@ def get_api_credentials():
     
     return True, {"provider": provider, "api_key": api_key}
 
-
-def get_module_diagnostic(student_name, failed_lessons, module_title):
+def generate_text(system_prompt, user_message, history=None):
+    """
+    history: [{"role": "user", "text": "..."}, {"role": "model", "text": "..."}]
+    """
     status, creds = get_api_credentials()
-    if not status: return creds
-    if creds['provider'] != 'gemini': return "Faqat Gemini API qo'llab quvvatlanadi hozircha."
-    api_key = creds['api_key']
-
-    lessons_text = ", ".join([l.title for l in failed_lessons])
-    
-    system_prompt = f"""
-Siz samimiy va tajribali o'qituvchisiz. Talaba ({student_name}) "{module_title}" modulining yakuniy testidan o'ta olmadi.
-U quyidagi mavzulardagi savollarda xato qildi: {lessons_text}.
-
-Vazifangiz:
-1. Talabani ruhan qo'llab-quvvatlang (chalg'imasdan davom etishga undash).
-2. Xatolarini umumlashtirib, nega aynan shu darslarni ({lessons_text}) qayta ko'rib chiqishi kerakligini tushuntiring. O'zlashtirishdagi bo'shliqni to'ldirish nima uchun muhimligini uqtiring.
-3. Hech qanday test javoblarini yoki aniq kodlarni bermang.
-4. Javob o'zbek tilida, qisqa (3-4 xatboshi) va konstruktiv bo'lsin.
-"""
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={api_key}"
-    payload = {
-        "contents": [{"parts": [{"text": system_prompt}]}],
-        "generationConfig": {
-            "temperature": 0.4,
-            "maxOutputTokens": 800
-        }
-    }
-    
-    try:
-        response = requests.post(url, json=payload, timeout=60)
-        response.raise_for_status()
-        data = response.json()
-        return data['candidates'][0]['content']['parts'][0]['text']
-    except Exception as e:
-        print("Gemini Error:", e)
-        return "Tizimda kichik uzilish yuz berdi. Iltimos, xato qilgan darslaringizni diqqat bilan qayta ko'rib chiqing."
-
-def test_ai():
-    status, creds = get_api_credentials()
-    if not status: return False, creds
-    if creds['provider'] != 'gemini': return False, "Faqat Gemini qo'llab quvvatlanadi."
-    api_key = creds['api_key']
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={api_key}"
-    payload = {"contents": [{"parts": [{"text": "Salom, sen ishladingmi? Qisqa 'ha' deb javob ber."}]}]}
-    try:
-        response = requests.post(url, json=payload, timeout=20)
-        response.raise_for_status()
-        return True, response.json()['candidates'][0]['content']['parts'][0]['text']
-    except Exception as e:
-        return False, str(e)
-
-def get_lesson_chat_response(lesson_title, lesson_content, user_message, history=None):
-    status, creds = get_api_credentials()
-    if not status: return creds
-    if creds['provider'] != 'gemini': return "Faqat Gemini qo'llab quvvatlanadi."
-    api_key = creds['api_key']
+    if not status: 
+        return creds
         
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={api_key}"
-    
-    system_prompt = f"""Sen malakali 'AI O'qituvchi'san (Sun'iy intellekt ustoz). 
-Vazifang: O'quvchiga quyidagi dars mavzusi va mazmuni bo'yicha yordam berish, tushunmagan joylarini tushuntirish va savollariga javob berish.
+    provider = creds['provider']
+    api_key = creds['api_key']
 
-Dars mavzusi: {lesson_title}
-Dars mazmuni: {lesson_content if lesson_content else 'Bu dars asosan video formatida. Oquvchi videodan kelib chiqib savol berishi mumkin.'}
+    if provider == 'gemini':
+        return call_gemini(api_key, system_prompt, user_message, history)
+    else:
+        return call_openai_compatible(provider, api_key, system_prompt, user_message, history)
 
-QAT'IY QOIDALAR:
-1. FAQAT va FAQAT shu dars mavzusi (va aynan shu soha) doirasida savollarga javob ber. 
-2. Agar o'quvchi umuman boshqa mavzuda (masalan, ob-havo, siyosat, din, boshqa tillar/dasturlar) savol bersa yoki shaxsiy savollar bersa, muloyimlik bilan rad et: "Kechirasiz, men faqat '{lesson_title}' mavzusi doirasida savollarga javob bera olaman."
-3. O'zbek tilida, do'stona, tushunarli, qisqa va aniq (ustozona ohangda) javob ber.
-4. Javoblaringni o'qishga qulay qilib (abzaslar, ro'yxatlar bilan) yoz."""
-
+def call_gemini(api_key, system_prompt, user_message, history=None):
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
     contents = []
-    
-    # Optional history handling:
-    # History format expected: [{"role": "user", "parts": [{"text": "..."}]}, {"role": "model", "parts": [{"text": "..."}]}]
     if history and isinstance(history, list):
         for msg in history:
             role = msg.get('role', 'user')
             text = msg.get('text', '')
             if text:
-                contents.append({
-                    "role": role,
-                    "parts": [{"text": text}]
-                })
-    
-    # Append the new user message along with the system instruction injected into the context implicitly
-    # Gemini requires role 'user' and 'model' strictly alternating. 
-    # To enforce system prompt safely without breaking the chain, we can use the 'systemInstruction' field if available,
-    # or just prepend it to the very first user message. For v1beta, systemInstruction is supported!
-    
-    contents.append({
-        "role": "user",
-        "parts": [{"text": user_message}]
-    })
+                contents.append({"role": role, "parts": [{"text": text}]})
+                
+    contents.append({"role": "user", "parts": [{"text": user_message}]})
 
     payload = {
-        "systemInstruction": {
-            "parts": [{"text": system_prompt}]
-        },
-        "contents": contents
+        "systemInstruction": {"parts": [{"text": system_prompt}]},
+        "contents": contents,
+        "generationConfig": {"temperature": 0.4, "maxOutputTokens": 1500}
+    }
+    
+    for attempt in range(3):
+        try:
+            response = requests.post(url, json=payload, timeout=60)
+            response.raise_for_status()
+            return response.json()['candidates'][0]['content']['parts'][0]['text']
+        except Exception as e:
+            if attempt == 2: return "Kechirasiz, xatolik yuz berdi. Iltimos keyinroq urinib ko'ring."
+            time.sleep(2)
+    return "Xatolik."
+
+def call_openai_compatible(provider, api_key, system_prompt, user_message, history=None):
+    if provider == 'deepinfra':
+        url = "https://api.deepinfra.com/v1/openai/chat/completions"
+        model = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+    elif provider == 'openrouter':
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        model = "google/gemini-flash-1.5-8b"
+    elif provider == 'openai':
+        url = "https://api.openai.com/v1/chat/completions"
+        model = "gpt-4o-mini"
+    elif provider == 'claude':
+        return "Claude xizmati hozircha ulanganicha yo'q."
+    else:
+        return "Noma'lum provayder."
+
+    messages = [{"role": "system", "content": system_prompt}]
+    
+    if history and isinstance(history, list):
+        for msg in history:
+            role = "assistant" if msg.get('role') == 'model' else "user"
+            text = msg.get('text', '')
+            if text:
+                messages.append({"role": role, "content": text})
+                
+    messages.append({"role": "user", "content": user_message})
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    if provider == 'openrouter':
+        headers["HTTP-Referer"] = "https://kurslarim.uz"
+        headers["X-Title"] = "Kurslarim"
+
+    payload = {
+        "model": model,
+        "messages": messages,
+        "temperature": 0.4,
+        "max_tokens": 1500
     }
 
-    try:
-        response = requests.post(url, json=payload, timeout=60)
-        response.raise_for_status()
-        data = response.json()
-        return data['candidates'][0]['content']['parts'][0]['text']
-    except Exception as e:
-        print("Gemini Chat Error:", e)
-        if hasattr(e, 'response') and getattr(e, 'response') is not None:
-            print("Response:", e.response.text)
-        return "Kechirasiz, hozircha men javob qaytara olmayapman. Iltimos keyinroq urinib ko'ring yoki ustozga to'g'ridan-to'g'ri yozing."
+    for attempt in range(3):
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=60)
+            response.raise_for_status()
+            return response.json()['choices'][0]['message']['content']
+        except Exception as e:
+            if attempt == 2: return f"AI Xatosi ({provider}): Iltimos keyinroq urinib ko'ring."
+            time.sleep(2)
+    return "Xatolik."
 
+
+def get_module_diagnostic(student_name, failed_lessons, module_title):
+    lessons_text = ", ".join([l.title for l in failed_lessons])
+    system_prompt = f"""
+Siz samimiy va tajribali o'qituvchisiz. Talaba ({student_name}) "{module_title}" modulining yakuniy testidan o'ta olmadi.
+U quyidagi mavzulardagi savollarda xato qildi: {lessons_text}.
+Vazifangiz:
+1. Talabani ruhan qo'llab-quvvatlang (chalg'imasdan davom etishga undash).
+2. Xatolarini umumlashtirib, nega aynan shu darslarni ({lessons_text}) qayta ko'rib chiqishi kerakligini tushuntiring.
+3. Hech qanday test javoblarini bermang.
+4. Javob o'zbek tilida, qisqa (3-4 xatboshi) bo'lsin.
+"""
+    return generate_text(system_prompt, "Test xatolari tahlilini yozib bering.")
+
+def test_ai():
+    status, creds = get_api_credentials()
+    if not status: return False, creds
+    try:
+        ans = generate_text("Sen AI assissantsan.", "Salom, sen ishladingmi? Qisqa 'ha' deb javob ber.")
+        return True, ans
+    except Exception as e:
+        return False, str(e)
+
+def get_lesson_chat_response(lesson_title, lesson_content, user_message, history=None):
+    system_prompt = f"""Sen malakali 'AI O'qituvchi'san.
+Dars mavzusi: {lesson_title}
+Dars mazmuni: {lesson_content if lesson_content else 'Bu dars asosan video formatida. Oquvchi videodan kelib chiqib savol berishi mumkin.'}
+QAT'IY QOIDALAR:
+1. FAQAT va FAQAT shu dars mavzusi doirasida savollarga javob ber. 
+2. Agar o'quvchi umuman boshqa mavzuda savol bersa, muloyimlik bilan rad et: "Kechirasiz, men faqat '{lesson_title}' mavzusi doirasida savollarga javob bera olaman."
+3. O'zbek tilida, do'stona, tushunarli, qisqa va aniq (ustozona ohangda) javob ber.
+4. Javoblaringni o'qishga qulay qilib (abzaslar, ro'yxatlar bilan) yoz."""
+
+    return generate_text(system_prompt, user_message, history)

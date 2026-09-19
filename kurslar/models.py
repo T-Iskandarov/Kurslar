@@ -226,6 +226,8 @@ class SystemSetting(models.Model):
         ('gemini', 'Gemini'),
         ('openai', 'OpenAI'),
         ('claude', 'Claude'),
+        ('deepinfra', 'DeepInfra'),
+        ('openrouter', 'OpenRouter'),
     ]
     is_ai_enabled = models.BooleanField(default=True)
     active_ai_provider = models.CharField(max_length=50, choices=PROVIDER_CHOICES, default='gemini')
@@ -233,6 +235,8 @@ class SystemSetting(models.Model):
     gemini_api_key = models.CharField(max_length=255, blank=True, null=True)
     openai_api_key = models.CharField(max_length=255, blank=True, null=True)
     claude_api_key = models.CharField(max_length=255, blank=True, null=True)
+    deepinfra_api_key = models.CharField(max_length=255, blank=True, null=True)
+    openrouter_api_key = models.CharField(max_length=255, blank=True, null=True)
     
     class Meta:
         verbose_name = "Tizim Sozlamasi"
