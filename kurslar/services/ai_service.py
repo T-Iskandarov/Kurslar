@@ -63,7 +63,7 @@ def call_gemini(api_key, system_prompt, user_message, history=None):
 def call_openai_compatible(provider, api_key, system_prompt, user_message, history=None):
     if provider == 'deepinfra':
         url = "https://api.deepinfra.com/v1/openai/chat/completions"
-        model = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+        model = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
     elif provider == 'openrouter':
         url = "https://openrouter.ai/api/v1/chat/completions"
         model = "google/gemini-flash-1.5-8b"
