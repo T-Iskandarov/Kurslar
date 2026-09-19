@@ -52,7 +52,7 @@ def call_gemini(api_key, system_prompt, user_message, history=None):
     
     for attempt in range(3):
         try:
-            response = requests.post(url, json=payload, timeout=60)
+            response = requests.post(url, json=payload, timeout=120)
             response.raise_for_status()
             return response.json()['candidates'][0]['content']['parts'][0]['text']
         except Exception as e:
@@ -104,7 +104,7 @@ def call_openai_compatible(provider, api_key, system_prompt, user_message, histo
 
     for attempt in range(3):
         try:
-            response = requests.post(url, headers=headers, json=payload, timeout=60)
+            response = requests.post(url, headers=headers, json=payload, timeout=120)
             response.raise_for_status()
             return response.json()['choices'][0]['message']['content']
         except Exception as e:
