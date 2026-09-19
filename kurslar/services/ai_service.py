@@ -16,24 +16,28 @@ def get_api_credentials():
     
     return True, {"provider": provider, "api_key": api_key}
 
-def generate_text(system_prompt, user_message, history=None):
-    """
-    history: [{"role": "user", "text": "..."}, {"role": "model", "text": "..."}]
-    """
+def generate_text(system_prompt, user_message, history=None, stream=False):
     status, creds = get_api_credentials()
     if not status: 
+        if stream:
+            def err_gen(): yield f"data: {json.dumps({'content': creds})}\n\n"
+            return err_gen()
         return creds
         
     provider = creds['provider']
     api_key = creds['api_key']
 
     if provider == 'gemini':
-        return call_gemini(api_key, system_prompt, user_message, history)
+        return call_gemini(api_key, system_prompt, user_message, history, stream)
     else:
-        return call_openai_compatible(provider, api_key, system_prompt, user_message, history)
+        return call_openai_compatible(provider, api_key, system_prompt, user_message, history, stream)
 
-def call_gemini(api_key, system_prompt, user_message, history=None):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
+def call_gemini(api_key, system_prompt, user_message, history=None, stream=False):
+    if stream:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:streamGenerateContent?key={api_key}&alt=sse"
+    else:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={api_key}"
+        
     contents = []
     if history and isinstance(history, list):
         for msg in history:
@@ -50,17 +54,43 @@ def call_gemini(api_key, system_prompt, user_message, history=None):
         "generationConfig": {"temperature": 0.4, "maxOutputTokens": 1500}
     }
     
-    for attempt in range(3):
-        try:
-            response = requests.post(url, json=payload, timeout=120)
-            response.raise_for_status()
-            return response.json()['candidates'][0]['content']['parts'][0]['text']
-        except Exception as e:
-            if attempt == 2: return "Kechirasiz, xatolik yuz berdi. Iltimos keyinroq urinib ko'ring."
-            time.sleep(2)
-    return "Xatolik."
+    if stream:
+        def generator():
+            try:
+                response = requests.post(url, json=payload, stream=True, timeout=60)
+                response.raise_for_status()
+                for line in response.iter_lines():
+                    if line:
+                        decoded_line = line.decode('utf-8')
+                        if decoded_line.startswith('data: '):
+                            data_str = decoded_line[6:]
+                            if data_str.strip() == '[DONE]':
+                                continue
+                            try:
+                                data = json.loads(data_str)
+                                parts = data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
+                                if parts:
+                                    delta = parts[0].get('text', '')
+                                    if delta:
+                                        yield f"data: {json.dumps({'content': delta})}\n\n"
+                            except Exception as e:
+                                pass
+            except Exception as e:
+                err_msg = f'\n\n[XATOLIK: {str(e)}]'
+                yield f"data: {json.dumps({'content': err_msg})}\n\n"
+        return generator()
+    else:
+        for attempt in range(3):
+            try:
+                response = requests.post(url, json=payload, timeout=120)
+                response.raise_for_status()
+                return response.json()['candidates'][0]['content']['parts'][0]['text']
+            except Exception as e:
+                if attempt == 2: return "Kechirasiz, xatolik yuz berdi. Iltimos keyinroq urinib ko'ring."
+                time.sleep(2)
+        return "Xatolik."
 
-def call_openai_compatible(provider, api_key, system_prompt, user_message, history=None):
+def call_openai_compatible(provider, api_key, system_prompt, user_message, history=None, stream=False):
     if provider == 'deepinfra':
         url = "https://api.deepinfra.com/v1/openai/chat/completions"
         model = "meta-llama/Llama-3.3-70B-Instruct-Turbo"
@@ -71,8 +101,14 @@ def call_openai_compatible(provider, api_key, system_prompt, user_message, histo
         url = "https://api.openai.com/v1/chat/completions"
         model = "gpt-4o-mini"
     elif provider == 'claude':
+        if stream:
+            def err_gen(): yield f"data: {json.dumps({'content': 'Claude hozircha ulanganicha yoq'})}\n\n"
+            return err_gen()
         return "Claude xizmati hozircha ulanganicha yo'q."
     else:
+        if stream:
+            def err_gen(): yield f"data: {json.dumps({'content': 'Nomalum provayder'})}\n\n"
+            return err_gen()
         return "Noma'lum provayder."
 
     messages = [{"role": "system", "content": system_prompt}]
@@ -99,18 +135,43 @@ def call_openai_compatible(provider, api_key, system_prompt, user_message, histo
         "model": model,
         "messages": messages,
         "temperature": 0.4,
-        "max_tokens": 1500
+        "max_tokens": 1500,
+        "stream": stream
     }
 
-    for attempt in range(3):
-        try:
-            response = requests.post(url, headers=headers, json=payload, timeout=120)
-            response.raise_for_status()
-            return response.json()['choices'][0]['message']['content']
-        except Exception as e:
-            if attempt == 2: return f"AI Xatosi ({provider}): Iltimos keyinroq urinib ko'ring."
-            time.sleep(2)
-    return "Xatolik."
+    if stream:
+        def generator():
+            try:
+                response = requests.post(url, headers=headers, json=payload, stream=True, timeout=60)
+                response.raise_for_status()
+                for line in response.iter_lines():
+                    if line:
+                        decoded_line = line.decode('utf-8')
+                        if decoded_line.startswith('data: '):
+                            data_str = decoded_line[6:]
+                            if data_str.strip() == '[DONE]':
+                                break
+                            try:
+                                data = json.loads(data_str)
+                                delta = data['choices'][0]['delta'].get('content', '')
+                                if delta:
+                                    yield f"data: {json.dumps({'content': delta})}\n\n"
+                            except Exception as e:
+                                pass
+            except Exception as e:
+                err_msg = f'\n\n[XATOLIK: {str(e)}]'
+                yield f"data: {json.dumps({'content': err_msg})}\n\n"
+        return generator()
+    else:
+        for attempt in range(3):
+            try:
+                response = requests.post(url, headers=headers, json=payload, timeout=120)
+                response.raise_for_status()
+                return response.json()['choices'][0]['message']['content']
+            except Exception as e:
+                if attempt == 2: return f"AI Xatosi ({provider}): Iltimos keyinroq urinib ko'ring."
+                time.sleep(2)
+        return "Xatolik."
 
 
 def get_module_diagnostic(student_name, failed_lessons, module_title):
@@ -124,18 +185,18 @@ Vazifangiz:
 3. Hech qanday test javoblarini bermang.
 4. Javob o'zbek tilida, qisqa (3-4 xatboshi) bo'lsin.
 """
-    return generate_text(system_prompt, "Test xatolari tahlilini yozib bering.")
+    return generate_text(system_prompt, "Test xatolari tahlilini yozib bering.", stream=False)
 
 def test_ai():
     status, creds = get_api_credentials()
     if not status: return False, creds
     try:
-        ans = generate_text("Sen AI assissantsan.", "Salom, sen ishladingmi? Qisqa 'ha' deb javob ber.")
+        ans = generate_text("Sen AI assissantsan.", "Salom, sen ishladingmi? Qisqa 'ha' deb javob ber.", stream=False)
         return True, ans
     except Exception as e:
         return False, str(e)
 
-def get_lesson_chat_response(lesson_title, lesson_content, user_message, history=None):
+def get_lesson_chat_response_stream(lesson_title, lesson_content, user_message, history=None):
     system_prompt = f"""Sen malakali 'AI O'qituvchi'san.
 Dars mavzusi: {lesson_title}
 Dars mazmuni: {lesson_content if lesson_content else 'Bu dars asosan video formatida. Oquvchi videodan kelib chiqib savol berishi mumkin.'}
@@ -145,4 +206,4 @@ QAT'IY QOIDALAR:
 3. O'zbek tilida, do'stona, tushunarli, qisqa va aniq (ustozona ohangda) javob ber.
 4. Javoblaringni o'qishga qulay qilib (abzaslar, ro'yxatlar bilan) yoz."""
 
-    return generate_text(system_prompt, user_message, history)
+    return generate_text(system_prompt, user_message, history, stream=True)

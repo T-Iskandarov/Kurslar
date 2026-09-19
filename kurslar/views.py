@@ -834,6 +834,8 @@ class AITestView(APIView):
         else:
             return Response({"status": "error", "error": msg}, status=500)
 
+from django.http import StreamingHttpResponse
+
 class LessonAIChatView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -841,7 +843,6 @@ class LessonAIChatView(APIView):
         lesson = get_object_or_404(Lesson, pk=lesson_id)
         
         # O'quvchi bu darsga kirish huquqiga egami?
-        # Tekshiramiz: Admin yoki sotib olingan kurs.
         if not request.user.is_staff:
             has_access = Enrollment.objects.filter(
                 user=request.user, 
@@ -857,15 +858,18 @@ class LessonAIChatView(APIView):
         if not message:
             return Response({"error": "Xabar bo'sh bo'lishi mumkin emas."}, status=400)
 
-        from .services.ai_service import get_lesson_chat_response
-        reply = get_lesson_chat_response(
+        from .services.ai_service import get_lesson_chat_response_stream
+        generator = get_lesson_chat_response_stream(
             lesson_title=lesson.title,
             lesson_content=lesson.content,
             user_message=message,
             history=history
         )
         
-        return Response({"reply": reply})
+        response = StreamingHttpResponse(generator, content_type='text/event-stream')
+        response['Cache-Control'] = 'no-cache'
+        response['X-Accel-Buffering'] = 'no'
+        return response
 
 from .models import SystemSetting
 
@@ -905,6 +909,10 @@ class AITestView(APIView):
         else:
             return Response({"status": "error", "error": msg}, status=500)
 
+from django.http import StreamingHttpResponse
+
+from django.http import StreamingHttpResponse
+
 class LessonAIChatView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -912,7 +920,6 @@ class LessonAIChatView(APIView):
         lesson = get_object_or_404(Lesson, pk=lesson_id)
         
         # O'quvchi bu darsga kirish huquqiga egami?
-        # Tekshiramiz: Admin yoki sotib olingan kurs.
         if not request.user.is_staff:
             has_access = Enrollment.objects.filter(
                 user=request.user, 
@@ -928,15 +935,18 @@ class LessonAIChatView(APIView):
         if not message:
             return Response({"error": "Xabar bo'sh bo'lishi mumkin emas."}, status=400)
 
-        from .services.ai_service import get_lesson_chat_response
-        reply = get_lesson_chat_response(
+        from .services.ai_service import get_lesson_chat_response_stream
+        generator = get_lesson_chat_response_stream(
             lesson_title=lesson.title,
             lesson_content=lesson.content,
             user_message=message,
             history=history
         )
         
-        return Response({"reply": reply})
+        response = StreamingHttpResponse(generator, content_type='text/event-stream')
+        response['Cache-Control'] = 'no-cache'
+        response['X-Accel-Buffering'] = 'no'
+        return response
 
 from .models import SystemSetting
 
@@ -988,3 +998,5 @@ class AdminSystemSettingsView(APIView):
             
         settings.save()
         return Response({"status": "success", "message": "Sozlamalar saqlandi."})
+
+
