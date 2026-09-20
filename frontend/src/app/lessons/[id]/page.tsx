@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import { useParams, useRouter } from 'next/navigation';
 import { apiFetch, MEDIA_BASE_URL } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle, BotMessageSquare, X, Send } from "lucide-react";
+import { ArrowLeft, CheckCircle2, PlayCircle, FileText, Download, MessageCircle, Sparkles, X, Send } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import YouTube from "react-youtube";
 
@@ -272,8 +272,8 @@ export default function LessonDetailPage() {
                   onClick={() => setIsChatOpen(true)}
                   className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-xl transition-colors shadow-sm"
                 >
-                  <BotMessageSquare size={20} />
-                  <span>AI O'qituvchi</span>
+                  <Sparkles size={20} />
+                  <span>Onlayn ustoz</span>
                 </button>
               )}
               
@@ -317,15 +317,15 @@ export default function LessonDetailPage() {
           <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl flex flex-col h-[600px] max-h-[90vh]">
             {/* Header */}
             <div className="p-4 border-b border-gray-100 flex items-center justify-between bg-purple-50 rounded-t-2xl">
-              <div className="flex items-center gap-3">
-                <div className="bg-purple-100 p-2 rounded-xl text-purple-600">
-                  <BotMessageSquare size={24} />
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                    <Sparkles size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">Onlayn ustoz</h3>
+                    <p className="text-xs text-purple-600 font-medium">{lesson.title}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-900">AI O'qituvchi</h3>
-                  <p className="text-xs text-purple-600 font-medium">{lesson.title}</p>
-                </div>
-              </div>
               <button 
                 onClick={() => setIsChatOpen(false)}
                 className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
