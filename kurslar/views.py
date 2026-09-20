@@ -844,13 +844,22 @@ class LessonAIChatView(APIView):
         
         # O'quvchi bu darsga kirish huquqiga egami?
         if not request.user.is_staff:
-            has_access = Enrollment.objects.filter(
-                user=request.user, 
-                course=lesson.module.course, 
-                status='active'
-            ).exists()
-            if not has_access:
-                return Response({"error": "Siz bu kursni sotib olmagansiz."}, status=403)
+            course = lesson.module.course if hasattr(lesson, 'module') and lesson.module else lesson.course
+            first_module = course.modules.order_by('order').first()
+            is_first = False
+            if first_module:
+                first_lesson = first_module.lessons.order_by('order').first()
+                if first_lesson and first_lesson.id == lesson.id:
+                    is_first = True
+            else:
+                first_unassigned = course.lessons.filter(module__isnull=True).order_by('order').first()
+                if first_unassigned and first_unassigned.id == lesson.id:
+                    is_first = True
+                    
+            if not is_first:
+                progress = UserProgress.objects.filter(user=request.user, lesson=lesson).first()
+                if not progress or not progress.is_unlocked:
+                    return Response({"error": "Siz bu kursni sotib olmagansiz yoki dars qulflangan."}, status=403)
 
         message = request.data.get('message', '')
         history = request.data.get('history', [])
@@ -921,13 +930,22 @@ class LessonAIChatView(APIView):
         
         # O'quvchi bu darsga kirish huquqiga egami?
         if not request.user.is_staff:
-            has_access = Enrollment.objects.filter(
-                user=request.user, 
-                course=lesson.module.course, 
-                status='active'
-            ).exists()
-            if not has_access:
-                return Response({"error": "Siz bu kursni sotib olmagansiz."}, status=403)
+            course = lesson.module.course if hasattr(lesson, 'module') and lesson.module else lesson.course
+            first_module = course.modules.order_by('order').first()
+            is_first = False
+            if first_module:
+                first_lesson = first_module.lessons.order_by('order').first()
+                if first_lesson and first_lesson.id == lesson.id:
+                    is_first = True
+            else:
+                first_unassigned = course.lessons.filter(module__isnull=True).order_by('order').first()
+                if first_unassigned and first_unassigned.id == lesson.id:
+                    is_first = True
+                    
+            if not is_first:
+                progress = UserProgress.objects.filter(user=request.user, lesson=lesson).first()
+                if not progress or not progress.is_unlocked:
+                    return Response({"error": "Siz bu kursni sotib olmagansiz yoki dars qulflangan."}, status=403)
 
         message = request.data.get('message', '')
         history = request.data.get('history', [])
