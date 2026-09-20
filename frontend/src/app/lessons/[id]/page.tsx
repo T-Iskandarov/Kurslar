@@ -341,7 +341,7 @@ export default function LessonDetailPage() {
             >
               {chatMessages.length === 0 ? (
                 <div className="text-center py-10 text-gray-500">
-                  <BotMessageSquare size={40} className="mx-auto text-purple-200 mb-3" />
+                  <Sparkles size={40} className="mx-auto text-purple-200 mb-3" />
                   <p className="text-sm">Assalomu alaykum! Ushbu dars bo'yicha tushunmagan joylaringiz yoki savollaringiz bo'lsa, menga yozing.</p>
                 </div>
               ) : (
